@@ -11,10 +11,10 @@ App(
         "nfc",
         "subghz",
         "bad_usb",
-        "u2f",
+        # "u2f",
         "archive",
-        "clock",
-        "subghz_remote",
+        # "clock",
+        # "subghz_remote",
     ],
 )
 
@@ -23,14 +23,14 @@ App(
     name="Basic applications for main menu",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
-        #"gpio",
-        #"ibutton",
-        #"infrared",
+        # "gpio",
+        # "ibutton",
+        # "infrared",
         "lfrfid",
         "nfc",
         "subghz",
-        #"bad_usb",
-        #"u2f",
+        # "bad_usb",
+        # "u2f",
         "archive",
     ],
 )
