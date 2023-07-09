@@ -32,6 +32,9 @@ static void input_callback(InputEvent* input, void* ctx) {
     if((input->type == InputTypeShort) && (input->key == InputKeyBack)) {
         furi_semaphore_release(semaphore);
     }
+    if((input->type == InputTypeShort) && (input->key == InputKeyLeft)) {
+        furi_semaphore_release(semaphore);
+    }
 }
 
 static void render_callback(Canvas* canvas, void* ctx) {
