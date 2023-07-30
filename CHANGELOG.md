@@ -1,14 +1,8 @@
 ## New changes
-* SubGHz: OFW PR: change the operation of the TIM17 timer in CC1101_ext to 2µs -> **CAME Atomo and other protocols issues with external module should be fixed now**
-* SubGHz: Temporatily revert new AM_Q in default modulations due to external CC1101 module issues
-* Plugins: NRF24 MouseJacker -> Fixed issue #551 - Wrong folder path
-* Plugins: Spectrum Analyzer -> Add a Precise mode and other small changes (by @ALEEF02 | PR #550 #553)
-* Plugins: Updated Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
-* Plugins: Various uFBT fixes (by @hedger) 
-* Infrared: Universal remote assets - Add Xiaomi TV and (Daikin AC from OFW PR 2913 by minchogaydarov)
-* OFW PR 2912: NFC: Fix key invalidation (again) (by AloneLiberty)
-* OFW PR 2907: Fix about screen (by andzhr)
-* OFW PR 2896: BadUSB - Added French Canadian layout (by francis2054)
+* SubGHz: Support for Ebyte E07 module power amp switch (works with TehRabbitt's Flux Capacitor Board) (by @Sil333033) (PR #559 by @Z3BRO) -> Remade by @xMasterX
+* Plugins: Update ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
+* Plugins: Update ESP32-CAM -> Camera Suite [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) -> (PR #562 by @CodyTolene)
+* OFW: Fix fbtenv restore
 
 ----
 
