@@ -14,7 +14,7 @@ App(
         # "u2f",
         "archive",
         # "clock",
-        # "subghz_remote",
+        "subghz_remote",
     ],
 )
 
