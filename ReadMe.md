@@ -93,6 +93,7 @@ Encoders or sending made by @xMasterX:
 - Keeloq: Stilmatic
 - Keeloq: CAME Space
 - Keeloq: Aprimatic (model TR and similar)
+- Keeloq: Centurion Nova (thanks Carlos !)
 
 Encoders or sending made by @Eng1n33r(first implementation in Q2 2022) & @xMasterX (current version):
 - CAME Atomo -> Update! check out new [instructions](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md)
@@ -136,15 +137,15 @@ You can support us by using links or addresses below:
 
 ### Community apps included:
 
-- **RFID Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/unleashed-firmware/pull/507) (original by Ganapati & xMasterX)
-- **iButton Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/unleashed-firmware/pull/507) (original by xMasterX)
+- **RFID Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/Multi_Fuzzer) (original by Ganapati & xMasterX)
+- **iButton Fuzzer** [(by @gid9798)](https://github.com/DarkFlippers/Multi_Fuzzer) (original by xMasterX)
 - **Sub-GHz bruteforcer** [(by @derskythe & xMasterX)](https://github.com/derskythe/flipperzero-subbrute) [(original by Ganapati & xMasterX)](https://github.com/DarkFlippers/unleashed-firmware/pull/57)
 - **Sub-GHz playlist** [(by darmiel)](https://github.com/DarkFlippers/unleashed-firmware/pull/62)
 - ESP8266 Deauther plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
 - WiFi Scanner plugin [(by SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
 - MultiConverter plugin [(by theisolinearchip)](https://github.com/theisolinearchip/flipperzero_stuff)
 - WAV Player [(OFW: DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) - Fixed and improved by [LTVA1](https://github.com/LTVA1/wav_player) -> Also outputs audio on `PA6` - `3(A6)` pin
-- Barcode generator plugin [(original by McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator) - [EAN-8 and refactoring](https://github.com/DarkFlippers/unleashed-firmware/pull/154) by @msvsergey
+- Barcode Generator [(by Kingal1337)](https://github.com/Kingal1337/flipper-barcode-generator)
 - GPIO: Sentry Safe plugin [(by H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
 - ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder) - Saving .pcap on flipper microSD [by tcpassos](https://github.com/tcpassos/flipperzero-firmware-with-wifi-marauder-companion) -> Only with custom marauder build (It is necessary to uncomment "#define WRITE_PACKETS_SERIAL" in configs.h (in marauder fw) and compile the firmware for the wifi board.) Or download precompiled build -> [Download esp32_marauder_ver_flipper_sd_serial.bin](https://github.com/justcallmekoko/ESP32Marauder/releases/latest)
 - NRF24: Sniffer & MouseJacker (with changes) [(by mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
@@ -159,7 +160,7 @@ You can support us by using links or addresses below:
 - HC-SR04 Distance sensor - Ported and modified by @xMasterX [(original by Sanqui)](https://github.com/Sanqui/flipperzero-firmware/tree/hc_sr04) - How to connect -> (5V -> VCC) / (GND -> GND) / (13|TX -> Trig) / (14|RX -> Echo)
 - Morse Code [(by wh00hw)](https://github.com/wh00hw/MorseCodeFAP)
 - **Unitemp - Temperature sensors reader** (DHT11/22, DS18B20, BMP280, HTU21x and more) [(by quen0n)](https://github.com/quen0n/unitemp-flipperzero)
-- BH1750 - Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
+- Lightmeter [(by oleksiikutuzov)](https://github.com/oleksiikutuzov/flipperzero-lightmeter)
 - HEX Viewer [(by QtRoS)](https://github.com/QtRoS/flipper-zero-hex-viewer)
 - POCSAG Pager [(by xMasterX & Shmuma)](https://github.com/xMasterX/flipper-pager)
 - Text Viewer [(by kowalski7cc & kyhwana)](https://github.com/kowalski7cc/flipper-zero-text-viewer/tree/refactor-text-app)
@@ -169,9 +170,11 @@ You can support us by using links or addresses below:
 - IR Scope [(by kallanreed)](https://github.com/DarkFlippers/unleashed-firmware/pull/407)
 - **BadBT** plugin (BT version of BadKB) [(by Willy-JL, ClaraCrazy, XFW contributors)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/main/bad_kb) (See in Applications->Tools) - (aka BadUSB via Bluetooth)
 - **Mifare Nested** [(by AloneLiberty)](https://github.com/AloneLiberty/FlipperNested) - Works with PC and python app `FlipperNested`
+- **NFC Maker** plugin (make tags with URLs, Wifi and other things) [(by Willy-JL)](https://github.com/ClaraCrazy/Flipper-Xtreme/tree/dev/applications/external/nfc_maker) 
+- ESP32-CAM -> Camera Suite [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite)
 
 Games:
-- DOOM (fixed) [(by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
+- DOOM (ported and fixed by @xMasterX & @Svarich & @hedger) [(original by p4nic4ttack)](https://github.com/p4nic4ttack/doom-flipper-zero/)
 - Zombiez [(Reworked By DevMilanIan)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/pull/240) [(Original By Dooskington)](https://github.com/Dooskington/flipperzero-zombiez)
 - Flappy Bird [(by DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
 - Arkanoid (refactored by xMasterX) [(by gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
@@ -184,6 +187,7 @@ Games:
 - BlackJack [(by teeebor)](https://github.com/teeebor/flipper_games)
 - 2048 game [(by eugene-kirzhanov)](https://github.com/eugene-kirzhanov/flipper-zero-2048-game)
 - Bomberduck [(by leo-need-more-coffee)](https://github.com/leo-need-more-coffee/flipperzero-bomberduck)
+- JetPack Joyride [(by timstrasser)](https://github.com/timstrasser)
 
 
 # Instructions
@@ -240,6 +244,8 @@ Games:
 ## [- How to use: [ESP8266] Deauther](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme)
 
 ## [- How to use: [ESP32] WiFi Marauder](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)
+
+## [- How to use: [ESP32-CAM] Camera Suite](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite)
 
 ## [- [WiFi] Scanner - Web Flasher for module firmware](https://sequoiasan.github.io/FlipperZero-WiFi-Scanner_Module/)
 

@@ -1,13 +1,8 @@
 ## New changes
-* Plugins: UniTemp update merged PRs -> Heat Index Feature (by @ClementGre) + Append carbon dioxide sensor (SCD40) (by @divinebird)
-* Plugins: Fix furi_hal_bus issues in AVR Programmer and Signal Generator (fixes issue #525)
-* Plugins: USB / BLE Remote - Updated UI in keynote vertical and numpad (by @gid9798 | PR #524)
-* Plugins: Update TOTP [(by akopachov)](https://github.com/akopachov/flipper-zero_authenticator)
-* Plugins: Fixed ESP32 WiFi Marauder crashes when reopening app
-* Infrared: Updated universal remote asstes (by @amec0e | PR #522)
-* OFW PR 2783: SLIX2 emulation support / practical use for Dymo printers (by @g3gg0)
-* OFW PR 2782: NFC: Fix key invalidation logic (by @AloneLiberty)
-* OFW: Debug: sync apps on attach, makes it possible to debug already started app that has crashed
+* SubGHz: Support for Ebyte E07 module power amp switch (works with TehRabbitt's Flux Capacitor Board) (by @Sil333033) (PR #559 by @Z3BRO) -> Remade by @xMasterX
+* Plugins: Update ESP32: WiFi Marauder companion plugin [(by 0xchocolate)](https://github.com/0xchocolate/flipperzero-wifi-marauder)
+* Plugins: Update ESP32-CAM -> Camera Suite [(by CodyTolene)](https://github.com/CodyTolene/Flipper-Zero-Camera-Suite) -> (PR #562 by @CodyTolene)
+* OFW: Fix fbtenv restore
 
 ----
 
