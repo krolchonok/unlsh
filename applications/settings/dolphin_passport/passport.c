@@ -35,6 +35,41 @@ static void input_callback(InputEvent* input, void* ctx) {
     if((input->type == InputTypeShort) && (input->key == InputKeyLeft)) {
         furi_semaphore_release(semaphore);
     }
+    if((input->type == InputTypeShort) && (input->key == InputKeyUp)) {
+        dolphin_deed(DolphinDeedSubGhzReceiverInfo);
+        dolphin_deed(DolphinDeedSubGhzSave);
+        dolphin_deed(DolphinDeedSubGhzRawRec);
+        dolphin_deed(DolphinDeedSubGhzAddManually);
+        dolphin_deed(DolphinDeedSubGhzSend);
+        dolphin_deed(DolphinDeedSubGhzFrequencyAnalyzer);
+        dolphin_deed(DolphinDeedRfidRead);
+        dolphin_deed(DolphinDeedRfidReadSuccess);
+        dolphin_deed(DolphinDeedRfidSave);
+        dolphin_deed(DolphinDeedRfidEmulate);
+        dolphin_deed(DolphinDeedRfidAdd);
+        dolphin_deed(DolphinDeedNfcRead);
+        dolphin_deed(DolphinDeedNfcReadSuccess);
+        dolphin_deed(DolphinDeedNfcSave);
+        dolphin_deed(DolphinDeedNfcDetectReader);
+        dolphin_deed(DolphinDeedNfcEmulate);
+        dolphin_deed(DolphinDeedNfcMfcAdd);
+        dolphin_deed(DolphinDeedNfcAddSave);
+        dolphin_deed(DolphinDeedNfcAddEmulate);
+        dolphin_deed(DolphinDeedIrSend);
+        dolphin_deed(DolphinDeedIrLearnSuccess);
+        dolphin_deed(DolphinDeedIrSave);
+        dolphin_deed(DolphinDeedIbuttonRead);
+        dolphin_deed(DolphinDeedIbuttonReadSuccess);
+        dolphin_deed(DolphinDeedIbuttonSave);
+        dolphin_deed(DolphinDeedIbuttonEmulate);
+        dolphin_deed(DolphinDeedIbuttonAdd);
+        dolphin_deed(DolphinDeedBadUsbPlayScript);
+        dolphin_deed(DolphinDeedU2fAuthorized);
+        dolphin_deed(DolphinDeedGpioUartBridge);
+        dolphin_deed(DolphinDeedPluginStart);
+        dolphin_deed(DolphinDeedPluginGameStart);
+        dolphin_deed(DolphinDeedPluginGameWin);
+    }
 }
 
 static void render_callback(Canvas* canvas, void* ctx) {
@@ -42,17 +77,18 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
     char level_str[20];
     char mood_str[32];
+
     uint8_t mood = 0;
 
     if(stats->butthurt <= 4) {
         mood = 0;
-        snprintf(mood_str, 20, "M: Happy");
+        snprintf(mood_str, 20, "M: Happy %ld", stats->butthurt);
     } else if(stats->butthurt <= 9) {
         mood = 1;
-        snprintf(mood_str, 20, "M: Ok");
+        snprintf(mood_str, 20, "M: Ok %ld", stats->butthurt);
     } else {
         mood = 2;
-        snprintf(mood_str, 20, "M: Angry");
+        snprintf(mood_str, 20, "M: Angry %ld", stats->butthurt);
     }
 
     uint32_t xp_progress = 0;

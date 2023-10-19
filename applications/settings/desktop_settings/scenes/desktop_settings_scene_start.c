@@ -54,15 +54,15 @@ const uint32_t clock_enable_value[CLOCK_ENABLE_COUNT] = {0, 1};
 #define BATTERY_VIEW_COUNT 6
 
 const char* const battery_view_count_text[BATTERY_VIEW_COUNT] =
-    {"Bar", "%", "Inv. %", "Retro 3", "Retro 5", "Bar %"};
+    {"Bar %", "Bar", "%", "Inv. %", "Retro 3", "Retro 5"};
 
 const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {
+    DISPLAY_BATTERY_BAR_PERCENT,
     DISPLAY_BATTERY_BAR,
     DISPLAY_BATTERY_PERCENT,
     DISPLAY_BATTERY_INVERTED_PERCENT,
     DISPLAY_BATTERY_RETRO_3,
-    DISPLAY_BATTERY_RETRO_5,
-    DISPLAY_BATTERY_BAR_PERCENT};
+    DISPLAY_BATTERY_RETRO_5};
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
