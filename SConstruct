@@ -77,6 +77,8 @@ if GetOption("fullenv") or any(
         "${COPRO_DISCLAIMER}",
         "--obdata",
         '"${ROOT_DIR.abspath}/${COPRO_OB_DATA}"',
+        "--stackversion",
+        "${COPRO_CUBE_VERSION}",
     ]
     dist_resource_arguments = [
         "-r",
@@ -185,27 +187,15 @@ copro_dist = distenv.CoproBuilder(
 distenv.AlwaysBuild(copro_dist)
 distenv.Alias("copro_dist", copro_dist)
 
-firmware_flash = distenv.AddOpenOCDFlashTarget(firmware_env)
+
+firmware_flash = distenv.AddFwFlashTarget(firmware_env)
 distenv.Alias("flash", firmware_flash)
 
+# To be implemented in fwflash.py
 firmware_jflash = distenv.AddJFlashTarget(firmware_env)
 distenv.Alias("jflash", firmware_jflash)
 
-firmware_bm_flash = distenv.PhonyTarget(
-    "flash_blackmagic",
-    "$GDB $GDBOPTS $SOURCES $GDBFLASH",
-    source=firmware_env["FW_ELF"],
-    GDBOPTS="${GDBOPTS_BASE} ${GDBOPTS_BLACKMAGIC}",
-    GDBREMOTE="${BLACKMAGIC_ADDR}",
-    GDBFLASH=[
-        "-ex",
-        "load",
-        "-ex",
-        "quit",
-    ],
-)
-
-gdb_backtrace_all_threads = distenv.PhonyTarget(
+distenv.PhonyTarget(
     "gdb_trace_all",
     "$GDB $GDBOPTS $SOURCES $GDBFLASH",
     source=firmware_env["FW_ELF"],

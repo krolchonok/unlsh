@@ -1,7 +1,7 @@
 App(
     appid="clock",
     name="Clock",
-    apptype=FlipperAppType.MENUEXTERNAL,
+    apptype=FlipperAppType.EXTERNAL,
     entry_point="clock_app",
     icon="A_Clock_14",
     stack_size=2 * 1024,
