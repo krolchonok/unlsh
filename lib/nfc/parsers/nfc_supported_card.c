@@ -63,7 +63,7 @@ NfcSupportedCard nfc_supported_card[NfcSupportedCardTypeEnd] = {
 
 bool nfc_supported_card_verify_and_parse(NfcDeviceData* dev_data) {
     furi_assert(dev_data);
-
+    FURI_LOG_I("tag", "test");
     bool card_parsed = false;
     for(size_t i = 0; i < COUNT_OF(nfc_supported_card); i++) {
         if(nfc_supported_card[i].parse(dev_data)) {

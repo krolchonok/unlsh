@@ -119,7 +119,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
     char prefixed_name[50] = "N: ";
     strcat(prefixed_name, my_name);
 
-    snprintf(level_str, 20, "L: %hu (left %lu)", stats->level, xp_progress);
+    snprintf(level_str, 20, "L: %hu (exp: %lu)", stats->level, xp_progress);
     canvas_draw_str(canvas, 58, 12, prefixed_name);
     canvas_draw_str(canvas, 58, 26, mood_str);
     canvas_draw_str(canvas, 58, 40, level_str);
