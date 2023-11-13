@@ -2,7 +2,7 @@ from SCons.Action import Action
 from SCons.Builder import Builder
 
 
-def _version_emitter(target, source, env):
+def version_emitter(target, source, env):
     target_dir = target[0]
     target = [
         target_dir.File("version.inc.h"),
@@ -24,7 +24,7 @@ def generate(env):
                     '-o ${TARGET.dir.posix} --dir "${ROOT_DIR}"',
                     "${VERSIONCOMSTR}",
                 ),
-                emitter=_version_emitter,
+                emitter=version_emitter,
             ),
         }
     )

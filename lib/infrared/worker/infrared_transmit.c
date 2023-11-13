@@ -88,7 +88,7 @@ FuriHalInfraredTxGetDataState
             state = FuriHalInfraredTxGetDataStateDone;
         }
     } else {
-        furi_crash();
+        furi_crash(NULL);
     }
 
     return state;

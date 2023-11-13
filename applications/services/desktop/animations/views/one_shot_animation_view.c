@@ -1,6 +1,7 @@
 
 #include "one_shot_animation_view.h"
 #include <furi.h>
+#include <portmacro.h>
 #include <gui/canvas.h>
 #include <gui/view.h>
 #include <gui/icon_i.h>
@@ -10,7 +11,7 @@ typedef void (*OneShotInteractCallback)(void*);
 
 struct OneShotView {
     View* view;
-    FuriTimer* update_timer;
+    TimerHandle_t update_timer;
     OneShotInteractCallback interact_callback;
     void* interact_callback_context;
 };
@@ -21,8 +22,8 @@ typedef struct {
     bool block_input;
 } OneShotViewModel;
 
-static void one_shot_view_update_timer_callback(void* context) {
-    OneShotView* view = context;
+static void one_shot_view_update_timer_callback(TimerHandle_t xTimer) {
+    OneShotView* view = (void*)pvTimerGetTimerID(xTimer);
 
     OneShotViewModel* model = view_get_model(view->view);
     if((model->index + 1) < model->icon->frame_count) {
@@ -80,7 +81,7 @@ OneShotView* one_shot_view_alloc(void) {
     OneShotView* view = malloc(sizeof(OneShotView));
     view->view = view_alloc();
     view->update_timer =
-        furi_timer_alloc(one_shot_view_update_timer_callback, FuriTimerTypePeriodic, view);
+        xTimerCreate(NULL, 1000, pdTRUE, view, one_shot_view_update_timer_callback);
 
     view_allocate_model(view->view, ViewModelTypeLocking, sizeof(OneShotViewModel));
     view_set_context(view->view, view);
@@ -93,7 +94,7 @@ OneShotView* one_shot_view_alloc(void) {
 void one_shot_view_free(OneShotView* view) {
     furi_assert(view);
 
-    furi_timer_free(view->update_timer);
+    xTimerDelete(view->update_timer, portMAX_DELAY);
     view_free(view->view);
     view->view = NULL;
     free(view);
@@ -119,7 +120,7 @@ void one_shot_view_start_animation(OneShotView* view, const Icon* icon) {
     model->icon = icon;
     model->block_input = true;
     view_commit_model(view->view, true);
-    furi_timer_start(view->update_timer, 1000 / model->icon->frame_rate);
+    xTimerChangePeriod(view->update_timer, 1000 / model->icon->frame_rate, portMAX_DELAY);
 }
 
 View* one_shot_view_get_view(OneShotView* view) {

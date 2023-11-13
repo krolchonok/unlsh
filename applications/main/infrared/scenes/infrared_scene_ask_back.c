@@ -1,12 +1,12 @@
-#include "../infrared_app_i.h"
+#include "../infrared_i.h"
 
 static void infrared_scene_dialog_result_callback(DialogExResult result, void* context) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, result);
 }
 
 void infrared_scene_ask_back_on_enter(void* context) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     DialogEx* dialog_ex = infrared->dialog_ex;
 
     if(infrared->app_state.is_learning_new_remote) {
@@ -28,7 +28,7 @@ void infrared_scene_ask_back_on_enter(void* context) {
 }
 
 bool infrared_scene_ask_back_on_event(void* context, SceneManagerEvent event) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
     bool consumed = false;
 
@@ -54,6 +54,6 @@ bool infrared_scene_ask_back_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_ask_back_on_exit(void* context) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     dialog_ex_reset(infrared->dialog_ex);
 }

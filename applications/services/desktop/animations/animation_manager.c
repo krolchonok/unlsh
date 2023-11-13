@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <furi.h>
 #include <furi_hal.h>
+#include <portmacro.h>
 #include <dolphin/dolphin.h>
 #include <power/power_service/power.h>
 #include <storage/storage.h>
@@ -449,13 +450,13 @@ void animation_manager_unload_and_stall_animation(AnimationManager* animation_ma
         animation_manager->state = AnimationManagerStateFreezedIdle;
 
         animation_manager->freezed_animation_time_left =
-            furi_timer_get_expire_time(animation_manager->idle_animation_timer) - furi_get_tick();
+            xTimerGetExpiryTime(animation_manager->idle_animation_timer) - xTaskGetTickCount();
         if(animation_manager->freezed_animation_time_left < 0) {
             animation_manager->freezed_animation_time_left = 0;
         }
         furi_timer_stop(animation_manager->idle_animation_timer);
     } else {
-        furi_crash();
+        furi_assert(0);
     }
 
     FURI_LOG_I(
@@ -527,7 +528,7 @@ void animation_manager_load_and_continue_animation(AnimationManager* animation_m
         }
     } else {
         /* Unknown state is an error. But not in release version.*/
-        furi_crash();
+        furi_assert(0);
     }
 
     /* if can't restore previous animation - select new */
@@ -563,7 +564,7 @@ static void animation_manager_switch_to_one_shot_view(AnimationManager* animatio
     } else if(stats.level == 2) {
         one_shot_view_start_animation(animation_manager->one_shot_view, &A_Levelup2_128x64);
     } else {
-        furi_crash();
+        furi_assert(0);
     }
 }
 

@@ -5,26 +5,9 @@ typedef enum {
     iButtonSceneWriteStateBlinkYellow,
 } iButtonSceneWriteState;
 
-static inline iButtonCustomEvent
-    ibutton_scene_write_to_custom_event(iButtonWorkerWriteResult result) {
-    switch(result) {
-    case iButtonWorkerWriteOK:
-        return iButtonCustomEventWorkerWriteOK;
-    case iButtonWorkerWriteSameKey:
-        return iButtonCustomEventWorkerWriteSameKey;
-    case iButtonWorkerWriteNoDetect:
-        return iButtonCustomEventWorkerWriteNoDetect;
-    case iButtonWorkerWriteCannotWrite:
-        return iButtonCustomEventWorkerWriteCannotWrite;
-    default:
-        furi_crash();
-    }
-}
-
 static void ibutton_scene_write_callback(void* context, iButtonWorkerWriteResult result) {
     iButton* ibutton = context;
-    view_dispatcher_send_custom_event(
-        ibutton->view_dispatcher, ibutton_scene_write_to_custom_event(result));
+    view_dispatcher_send_custom_event(ibutton->view_dispatcher, result);
 }
 
 void ibutton_scene_write_on_enter(void* context) {
@@ -78,14 +61,16 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
-        if((event.event == iButtonCustomEventWorkerWriteOK) ||
-           (event.event == iButtonCustomEventWorkerWriteSameKey)) {
+        if((event.event == iButtonWorkerWriteOK) || (event.event == iButtonWorkerWriteSameKey)) {
             scene_manager_next_scene(scene_manager, iButtonSceneWriteSuccess);
-        } else if(event.event == iButtonCustomEventWorkerWriteNoDetect) {
+        } else if(event.event == iButtonWorkerWriteNoDetect) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
-        } else if(event.event == iButtonCustomEventWorkerWriteCannotWrite) {
+        } else if(event.event == iButtonWorkerWriteCannotWrite) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
+
+    } else if(event.type == SceneManagerEventTypeTick) {
+        consumed = true;
     }
 
     return consumed;

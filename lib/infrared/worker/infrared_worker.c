@@ -165,7 +165,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
     InfraredWorker* instance = thread_context;
     uint32_t events = 0;
     LevelDuration level_duration;
-    uint32_t last_blink_time = 0;
+    TickType_t last_blink_time = 0;
 
     while(1) {
         events = furi_thread_flags_wait(INFRARED_WORKER_ALL_RX_EVENTS, 0, FuriWaitForever);
@@ -173,8 +173,8 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
 
         if(events & INFRARED_WORKER_RX_RECEIVED) {
             if(!instance->rx.overrun && instance->blink_enable &&
-               ((furi_get_tick() - last_blink_time) > 80)) {
-                last_blink_time = furi_get_tick();
+               ((xTaskGetTickCount() - last_blink_time) > 80)) {
+                last_blink_time = xTaskGetTickCount();
                 notification_message(instance->notification, &sequence_blink_blue_10);
             }
             if(instance->signal.timings_cnt == 0)
@@ -367,11 +367,10 @@ static FuriHalInfraredTxGetDataState
         *duration = timing.duration;
         state = timing.state;
     } else {
-        // Why bother if we crash anyway?..
+        furi_assert(0);
         *level = 0;
         *duration = 100;
         state = FuriHalInfraredTxGetDataStateDone;
-        furi_crash();
     }
 
     uint32_t flags_set = furi_thread_flags_set(
@@ -415,7 +414,7 @@ static bool infrared_get_new_signal(InfraredWorker* instance) {
     } else if(response == InfraredWorkerGetSignalResponseStop) {
         new_signal_obtained = false;
     } else {
-        furi_crash();
+        furi_assert(0);
     }
 
     return new_signal_obtained;
@@ -444,8 +443,9 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
         }
 
         if(status == InfraredStatusError) {
+            furi_assert(0);
             new_data_available = false;
-            furi_crash();
+            break;
         } else if(status == InfraredStatusOk) {
             timing.state = FuriHalInfraredTxGetDataStateOk;
         } else if(status == InfraredStatusDone) {
@@ -456,7 +456,7 @@ static bool infrared_worker_tx_fill_buffer(InfraredWorker* instance) {
                 timing.state = FuriHalInfraredTxGetDataStateLastDone;
             }
         } else {
-            furi_crash();
+            furi_assert(0);
         }
         uint32_t written_size =
             furi_stream_buffer_send(instance->stream, &timing, sizeof(InfraredWorkerTiming), 0);
@@ -548,7 +548,7 @@ static int32_t infrared_worker_tx_thread(void* thread_context) {
 
             break;
         default:
-            furi_crash();
+            furi_assert(0);
             break;
         }
     }

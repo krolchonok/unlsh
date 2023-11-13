@@ -64,7 +64,6 @@ class FlipperApplication:
     order: int = 0
     sdk_headers: List[str] = field(default_factory=list)
     targets: List[str] = field(default_factory=lambda: ["all"])
-    resources: Optional[str] = None
 
     # .fap-specific
     sources: List[str] = field(default_factory=lambda: ["*.c*"])
@@ -240,12 +239,12 @@ class AppBuildset:
         FlipperAppType.SETTINGS,
         FlipperAppType.STARTUP,
     )
-    EXTERNAL_APP_TYPES_MAP = {
-        FlipperAppType.EXTERNAL: True,
-        FlipperAppType.PLUGIN: True,
-        FlipperAppType.DEBUG: True,
-        FlipperAppType.MENUEXTERNAL: False,
-    }
+    EXTERNAL_APP_TYPES = (
+        FlipperAppType.EXTERNAL,
+        FlipperAppType.MENUEXTERNAL,
+        FlipperAppType.PLUGIN,
+        FlipperAppType.DEBUG,
+    )
 
     @staticmethod
     def print_writer(message):
@@ -273,14 +272,10 @@ class AppBuildset:
         self._check_unsatisfied()  # unneeded?
         self._check_target_match()
         self._group_plugins()
-        self._apps = sorted(
+        self.apps = sorted(
             list(map(self.appmgr.get, self.appnames)),
             key=lambda app: app.appid,
         )
-
-    @property
-    def apps(self):
-        return list(self._apps)
 
     def _is_missing_dep(self, dep_name: str):
         return dep_name not in self.appnames
@@ -318,8 +313,8 @@ class AppBuildset:
     def _process_ext_apps(self):
         extapps = [
             app
-            for (apptype, global_lookup) in self.EXTERNAL_APP_TYPES_MAP.items()
-            for app in self.get_apps_of_type(apptype, global_lookup)
+            for apptype in self.EXTERNAL_APP_TYPES
+            for app in self.get_apps_of_type(apptype, True)
         ]
         extapps.extend(map(self.appmgr.get, self._extra_ext_appnames))
 
@@ -390,13 +385,13 @@ class AppBuildset:
 
     def get_apps_cdefs(self):
         cdefs = set()
-        for app in self._apps:
+        for app in self.apps:
             cdefs.update(app.cdefines)
         return sorted(list(cdefs))
 
     def get_sdk_headers(self):
         sdk_headers = []
-        for app in self._apps:
+        for app in self.apps:
             sdk_headers.extend(
                 [
                     src._appdir.File(header)
@@ -407,21 +402,17 @@ class AppBuildset:
         return sdk_headers
 
     def get_apps_of_type(self, apptype: FlipperAppType, all_known: bool = False):
-        """Looks up apps of given type in current app set. If all_known is true,
-        ignores app set and checks all loaded apps' manifests."""
         return sorted(
             filter(
                 lambda app: app.apptype == apptype,
-                self.appmgr.known_apps.values()
-                if all_known
-                else map(self.appmgr.get, self.appnames),
+                self.appmgr.known_apps.values() if all_known else self.apps,
             ),
             key=lambda app: app.order,
         )
 
     def get_builtin_apps(self):
         return list(
-            filter(lambda app: app.apptype in self.BUILTIN_APP_TYPES, self._apps)
+            filter(lambda app: app.apptype in self.BUILTIN_APP_TYPES, self.apps)
         )
 
     def get_builtin_app_folders(self):

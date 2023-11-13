@@ -21,8 +21,8 @@
 
 #include <furi_hal_gpio.h>
 
-// Workaround for math.h leaking through HAL in older versions
-#include <math.h>
+// FreeRTOS timer, REMOVE AFTER REFACTORING
+#include <timers.h>
 
 #ifdef __cplusplus
 extern "C" {

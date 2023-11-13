@@ -26,31 +26,29 @@ void subghz_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(subghz->scene_manager);
 }
 
-static void subghz_rpc_command_callback(const RpcAppSystemEvent* event, void* context) {
+static void subghz_rpc_command_callback(RpcAppSystemEvent event, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
 
     furi_assert(subghz->rpc_ctx);
 
-    if(event->type == RpcAppEventTypeSessionClose) {
+    if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventSceneRpcSessionClose);
         rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
         subghz->rpc_ctx = NULL;
-    } else if(event->type == RpcAppEventTypeAppExit) {
+    } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
-    } else if(event->type == RpcAppEventTypeLoadFile) {
-        furi_assert(event->data.type == RpcAppSystemEventDataTypeString);
-        furi_string_set(subghz->file_path, event->data.string);
+    } else if(event == RpcAppEventLoadFile) {
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneRpcLoad);
-    } else if(event->type == RpcAppEventTypeButtonPress) {
+    } else if(event == RpcAppEventButtonPress) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventSceneRpcButtonPress);
-    } else if(event->type == RpcAppEventTypeButtonRelease) {
+    } else if(event == RpcAppEventButtonRelease) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventSceneRpcButtonRelease);
     } else {
-        rpc_system_app_confirm(subghz->rpc_ctx, false);
+        rpc_system_app_confirm(subghz->rpc_ctx, event, false);
     }
 }
 

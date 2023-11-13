@@ -23,23 +23,28 @@ bool ibutton_scene_rpc_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
 
-        if(event.event == iButtonCustomEventRpcLoadFile) {
+        if(event.event == iButtonCustomEventRpcLoad) {
             bool result = false;
+            const char* file_path = rpc_system_app_get_data(ibutton->rpc);
 
-            if(ibutton_load_key(ibutton)) {
-                popup_set_text(popup, ibutton->key_name, 82, 32, AlignCenter, AlignTop);
-                view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
+            if(file_path && (furi_string_empty(ibutton->file_path))) {
+                furi_string_set(ibutton->file_path, file_path);
 
-                ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
-                ibutton_worker_emulate_start(ibutton->worker, ibutton->key);
+                if(ibutton_load_key(ibutton)) {
+                    popup_set_text(popup, ibutton->key_name, 82, 32, AlignCenter, AlignTop);
+                    view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
 
-                result = true;
+                    ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
+                    ibutton_worker_emulate_start(ibutton->worker, ibutton->key);
+
+                    result = true;
+                }
             }
 
-            rpc_system_app_confirm(ibutton->rpc, result);
+            rpc_system_app_confirm(ibutton->rpc, RpcAppEventLoadFile, result);
 
         } else if(event.event == iButtonCustomEventRpcExit) {
-            rpc_system_app_confirm(ibutton->rpc, true);
+            rpc_system_app_confirm(ibutton->rpc, RpcAppEventAppExit, true);
             scene_manager_stop(ibutton->scene_manager);
             view_dispatcher_stop(ibutton->view_dispatcher);
 

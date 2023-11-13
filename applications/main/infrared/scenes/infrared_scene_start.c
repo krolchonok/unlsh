@@ -1,4 +1,4 @@
-#include "../infrared_app_i.h"
+#include "../infrared_i.h"
 
 enum SubmenuIndex {
     SubmenuIndexUniversalRemotes,
@@ -10,12 +10,12 @@ enum SubmenuIndex {
 };
 
 static void infrared_scene_start_submenu_callback(void* context, uint32_t index) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     view_dispatcher_send_custom_event(infrared->view_dispatcher, index);
 }
 
 void infrared_scene_start_on_enter(void* context) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     Submenu* submenu = infrared->submenu;
     SceneManager* scene_manager = infrared->scene_manager;
 
@@ -68,7 +68,7 @@ void infrared_scene_start_on_enter(void* context) {
 }
 
 bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     SceneManager* scene_manager = infrared->scene_manager;
 
     bool consumed = false;
@@ -107,6 +107,6 @@ bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
 }
 
 void infrared_scene_start_on_exit(void* context) {
-    InfraredApp* infrared = context;
+    Infrared* infrared = context;
     submenu_reset(infrared->submenu);
 }

@@ -28,51 +28,39 @@ extern "C" {
 #define __FURI_CHECK_MESSAGE_FLAG (0x02)
 
 /** Crash system */
-FURI_NORETURN void __furi_crash_implementation();
+FURI_NORETURN void __furi_crash();
 
 /** Halt system */
-FURI_NORETURN void __furi_halt_implementation();
+FURI_NORETURN void __furi_halt();
 
 /** Crash system with message. Show message after reboot. */
-#define __furi_crash(message)                                 \
+#define furi_crash(message)                                   \
     do {                                                      \
         register const void* r12 asm("r12") = (void*)message; \
         asm volatile("sukima%=:" : : "r"(r12));               \
-        __furi_crash_implementation();                        \
+        __furi_crash();                                       \
     } while(0)
-
-/** Crash system
- *
- * @param      optional  message (const char*)
- */
-#define furi_crash(...) M_APPLY(__furi_crash, M_IF_EMPTY(__VA_ARGS__)((NULL), (__VA_ARGS__)))
 
 /** Halt system with message. */
-#define __furi_halt(message)                                  \
+#define furi_halt(message)                                    \
     do {                                                      \
         register const void* r12 asm("r12") = (void*)message; \
         asm volatile("sukima%=:" : : "r"(r12));               \
-        __furi_halt_implementation();                         \
+        __furi_halt();                                        \
     } while(0)
-
-/** Halt system
- *
- * @param      optional  message (const char*)
- */
-#define furi_halt(...) M_APPLY(__furi_halt, M_IF_EMPTY(__VA_ARGS__)((NULL), (__VA_ARGS__)))
 
 /** Check condition and crash if check failed */
 #define __furi_check(__e, __m) \
     do {                       \
         if(!(__e)) {           \
-            __furi_crash(__m); \
+            furi_crash(__m);   \
         }                      \
     } while(0)
 
 /** Check condition and crash if failed
  *
  * @param      condition to check
- * @param      optional  message (const char*)
+ * @param      optional  message
  */
 #define furi_check(...) \
     M_APPLY(__furi_check, M_DEFAULT_ARGS(2, (__FURI_CHECK_MESSAGE_FLAG), __VA_ARGS__))
@@ -82,7 +70,7 @@ FURI_NORETURN void __furi_halt_implementation();
 #define __furi_assert(__e, __m) \
     do {                        \
         if(!(__e)) {            \
-            __furi_crash(__m);  \
+            furi_crash(__m);    \
         }                       \
     } while(0)
 #else
@@ -98,7 +86,7 @@ FURI_NORETURN void __furi_halt_implementation();
  * @warning    only will do check if firmware compiled in debug mode
  *
  * @param      condition to check
- * @param      optional  message (const char*)
+ * @param      optional  message
  */
 #define furi_assert(...) \
     M_APPLY(__furi_assert, M_DEFAULT_ARGS(2, (__FURI_ASSERT_MESSAGE_FLAG), __VA_ARGS__))

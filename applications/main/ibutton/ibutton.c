@@ -39,23 +39,21 @@ static void ibutton_make_app_folder(iButton* ibutton) {
     furi_record_close(RECORD_STORAGE);
 }
 
-static void ibutton_rpc_command_callback(const RpcAppSystemEvent* event, void* context) {
+static void ibutton_rpc_command_callback(RpcAppSystemEvent event, void* context) {
     furi_assert(context);
     iButton* ibutton = context;
 
-    if(event->type == RpcAppEventTypeSessionClose) {
+    if(event == RpcAppEventSessionClose) {
         view_dispatcher_send_custom_event(
             ibutton->view_dispatcher, iButtonCustomEventRpcSessionClose);
         rpc_system_app_set_callback(ibutton->rpc, NULL, NULL);
         ibutton->rpc = NULL;
-    } else if(event->type == RpcAppEventTypeAppExit) {
+    } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
-    } else if(event->type == RpcAppEventTypeLoadFile) {
-        furi_assert(event->data.type == RpcAppSystemEventDataTypeString);
-        furi_string_set(ibutton->file_path, event->data.string);
-        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcLoadFile);
+    } else if(event == RpcAppEventLoadFile) {
+        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcLoad);
     } else {
-        rpc_system_app_confirm(ibutton->rpc, false);
+        rpc_system_app_confirm(ibutton->rpc, event, false);
     }
 }
 

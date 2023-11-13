@@ -207,7 +207,7 @@ void view_dispatcher_attach_to_gui(
     } else if(type == ViewDispatcherTypeFullscreen) {
         gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerFullscreen);
     } else {
-        furi_crash();
+        furi_check(NULL);
     }
     view_dispatcher->gui = gui;
 }

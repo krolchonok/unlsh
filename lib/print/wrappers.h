@@ -1,5 +1,3 @@
-#pragma once
-
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -8,6 +6,7 @@
 extern "C" {
 #endif
 
+void _putchar(char character);
 int __wrap_printf(const char* format, ...);
 int __wrap_vsnprintf(char* str, size_t size, const char* format, va_list args);
 int __wrap_puts(const char* str);
