@@ -118,8 +118,12 @@ static void render_callback(Canvas* canvas, void* ctx) {
     const char* my_name = furi_hal_version_get_name_ptr();
     char prefixed_name[50] = "N: ";
     strcat(prefixed_name, my_name);
+    if(xp_progress != 0) {
+        snprintf(level_str, 20, "L: %hu (exp: %ld)", stats->level, xp_progress);
+    } else {
+        snprintf(level_str, 20, "L: %hu (max)", stats->level);
+    }
 
-    snprintf(level_str, 20, "L: %hu (exp: %lu)", stats->level, xp_progress);
     canvas_draw_str(canvas, 58, 12, prefixed_name);
     canvas_draw_str(canvas, 58, 26, mood_str);
     canvas_draw_str(canvas, 58, 40, level_str);
