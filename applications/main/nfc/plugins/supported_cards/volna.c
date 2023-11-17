@@ -171,7 +171,7 @@ static bool volna_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#Volna\nCard number: %lu\nBalance: %u RUR\nLast charge at %u:%u",
+            "\e#Volna\nCard number: %lu\nBalance: %u RUR\nLast charge at %02u:%02u",
             card_number,
             balance,
             last_charge_hours,
