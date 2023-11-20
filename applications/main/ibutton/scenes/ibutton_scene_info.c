@@ -30,6 +30,7 @@ void ibutton_scene_info_on_enter(void* context) {
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
     furi_string_free(tmp);
+    furi_string_free(keynumber);
 }
 
 bool ibutton_scene_info_on_event(void* context, SceneManagerEvent event) {
