@@ -84,12 +84,12 @@ App(
 )
 
 App(
-    appid="volna_parser",
+    appid="umarsh_parser",
     apptype=FlipperAppType.PLUGIN,
-    entry_point="volna_plugin_ep",
+    entry_point="umarsh_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
-    sources=["plugins/supported_cards/volna.c"],
+    sources=["plugins/supported_cards/umarsh.c"],
 )
 
 App(
