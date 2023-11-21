@@ -91,11 +91,19 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         last_refill_datetime.month = last_refill_date >> 5 & 0x0F;
         last_refill_datetime.day = last_refill_date & 0x1F;
 
+        const uint8_t* temp_ptr =
+            &data->block[mf_classic_get_first_block_num_of_sector(0) + 1].data[0];
+        uint16_t last_charge = (temp_ptr[0] << 8 | temp_ptr[1]) & 0x1FFF;
+        uint8_t last_charge_hours = last_charge / 100;
+        uint8_t last_charge_minutes = last_charge % 100;
+
+        FURI_LOG_I("t", "%02u:%02u", last_charge_hours, last_charge_minutes);
         furi_string_printf(
             parsed_data,
-            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u",
+            "\e#Volna\nCard number: %lu\nLast charge at %02u:%02u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u\nRegion: %02u",
             card_number,
-            region_number,
+            last_charge_hours,
+            last_charge_minutes,
             balance_rub,
             balance_kop,
             terminal_number,
@@ -105,7 +113,8 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
             last_refill_datetime.year,
             expiry_datetime.day,
             expiry_datetime.month,
-            expiry_datetime.year);
+            expiry_datetime.year,
+            region_number);
         parsed = true;
     } while(false);
 
