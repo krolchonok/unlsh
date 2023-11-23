@@ -71,6 +71,7 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Data parsing from block 1
         block_start_ptr = &data->block[ticket_sector_start_block_number + 1].data[0];
         const uint16_t expiry_date = nfc_util_bytes2num(block_start_ptr + 1, 2);
+
         const uint8_t region_number = (((block_start_ptr[8] >> 5) & 0x07) << 4) |
                                       (block_start_ptr[12] & 0x0F);
         const uint8_t refill_counter = nfc_util_bytes2num(block_start_ptr + 7, 1);
@@ -81,9 +82,10 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         // Data parsing from block 2
         block_start_ptr = &data->block[ticket_sector_start_block_number + 2].data[0];
         const uint16_t valid_to = nfc_util_bytes2num(block_start_ptr, 2);
+
         const uint32_t terminal_number = nfc_util_bytes2num(block_start_ptr + 3, 3);
         const uint16_t last_refill_date = nfc_util_bytes2num(block_start_ptr + 6, 2);
-        const uint16_t balance_rub = (nfc_util_bytes2num(block_start_ptr + 8, 2)) & 0x7FFF;
+        const uint16_t balance_rub = nfc_util_bytes2num(block_start_ptr + 8, 2) & 0x7FFF;
         const uint8_t balance_kop = nfc_util_bytes2num(block_start_ptr + 10, 1) & 0x7F;
 
         FuriHalRtcDateTime expiry_datetime;
@@ -96,15 +98,31 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         bool is_last_refill_datetime_valid =
             parse_datetime(last_refill_date, &last_refill_datetime);
 
+        const uint8_t* temp_ptr =
+            &data->block[mf_classic_get_first_block_num_of_sector(0) + 1].data[0];
+        uint16_t lastride_data = (temp_ptr[2] << 8 | temp_ptr[3]);
+        FuriHalRtcDateTime last_ride;
+        last_ride.year = 2000 + (lastride_data >> 9);
+        last_ride.month = lastride_data >> 5 & 0x0F;
+        last_ride.day = lastride_data & 0x1F;
+
+        uint16_t last_charge = (temp_ptr[0] << 8 | temp_ptr[1]) & 0x1FFF;
+        uint8_t last_charge_hours = last_charge / 100;
+        uint8_t last_charge_minutes = last_charge % 100;
         furi_string_cat_printf(
             parsed_data,
-            "\e#Umarsh\nCard number: %lu\nRegion: %02u\nTerminal number: %lu\nRefill counter: %u\nBalance: %u.%02u RUR",
+            "Volna\nCard number: %lu\nBalance: %u.%02u RUR\nLR: %02u:%02u %02u.%02u.%u\nRegion: %02u\nTerminal number: %lu\nRefill counter: %u",
             card_number,
+            balance_rub,
+            balance_kop,
+            last_charge_hours,
+            last_charge_minutes,
+            last_ride.day,
+            last_ride.month,
+            last_ride.year,
             region_number,
             terminal_number,
-            refill_counter,
-            balance_rub,
-            balance_kop);
+            refill_counter);
 
         if(is_expiry_datetime_valid)
             furi_string_cat_printf(
