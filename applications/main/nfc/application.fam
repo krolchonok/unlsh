@@ -93,6 +93,24 @@ App(
 )
 
 App(
+    appid="metromoney_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="metromoney_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/metromoney.c"],
+)
+
+App(
+    appid="kazan_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="kazan_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/kazan.c"],
+)
+
+App(
     appid="nfc_start",
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,
