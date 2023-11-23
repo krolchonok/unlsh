@@ -98,12 +98,21 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         uint8_t last_charge_hours = last_charge / 100;
         uint8_t last_charge_minutes = last_charge % 100;
 
+        uint16_t lastride_data = (temp_ptr[2] << 8 | temp_ptr[3]);
+        FuriHalRtcDateTime last_ride;
+        last_ride.year = 2000 + (lastride_data >> 9);
+        last_ride.month = lastride_data >> 5 & 0x0F;
+        last_ride.day = lastride_data & 0x1F;
+
         furi_string_printf(
             parsed_data,
-            "\e#Volna\nCard number: %lu\nLast charge at %02u:%02u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u\nRegion: %02u",
+            "\e#Volna\nCard number: %lu\nLast ride time: %02u:%02u\nLast ride date: %02u.%02u.%u\nBalance: %u.%u RUR\nTerminal number: %lu\nRefill counter: %u\nLast refill: %02u.%02u.%u\nExpires: %02u.%02u.%u\nRegion: %02u",
             card_number,
             last_charge_hours,
             last_charge_minutes,
+            last_ride.day,
+            last_ride.month,
+            last_ride.year,
             balance_rub,
             balance_kop,
             terminal_number,

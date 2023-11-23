@@ -104,7 +104,7 @@ void bit_lib_set_bits(uint8_t* data, size_t position, uint8_t byte, uint8_t leng
         uint8_t shift = (length - 1) - i;
         bit_lib_set_bit(data, position + i, (byte >> shift) & 1); //-V610
     }
-}
+}   
 
 bool bit_lib_get_bit(const uint8_t* data, size_t position) {
     return (data[position / 8] >> (7 - (position % 8))) & 1;
