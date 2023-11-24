@@ -98,32 +98,39 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         bool is_last_refill_datetime_valid =
             parse_datetime(last_refill_date, &last_refill_datetime);
 
-        const uint8_t* temp_ptr =
+        const uint8_t* blocktwo =
             &data->block[mf_classic_get_first_block_num_of_sector(0) + 1].data[0];
-        uint16_t lastride_data = (temp_ptr[2] << 8 | temp_ptr[3]);
-        FuriHalRtcDateTime last_ride;
-        last_ride.year = 2000 + (lastride_data >> 9);
-        last_ride.month = lastride_data >> 5 & 0x0F;
-        last_ride.day = lastride_data & 0x1F;
 
-        uint16_t last_charge = (temp_ptr[0] << 8 | temp_ptr[1]) & 0x1FFF;
-        uint8_t last_charge_hours = last_charge / 100;
-        uint8_t last_charge_minutes = last_charge % 100;
+        const uint16_t tempdataride = nfc_util_bytes2num(blocktwo + 2, 2);
+
+        FuriHalRtcDateTime last_data_ride;
+
+        bool is_lastride_to_datetime_valid = parse_datetime(tempdataride, &last_data_ride);
+        const uint16_t temptimeride = nfc_util_bytes2num(blocktwo, 2) & 0x1FFF;
+
+        last_data_ride.hour = temptimeride / 100;
+        last_data_ride.minute = temptimeride % 100;
         furi_string_cat_printf(
             parsed_data,
-            "Volna\nCard number: %lu\nBalance: %u.%02u RUR\nLR: %02u:%02u %02u.%02u.%u\nRegion: %02u\nTerminal number: %lu\nRefill counter: %u",
+            "Volna\nCard number: %lu\nBalance: %u.%02u\n",
             card_number,
             balance_rub,
-            balance_kop,
-            last_charge_hours,
-            last_charge_minutes,
-            last_ride.day,
-            last_ride.month,
-            last_ride.year,
+            balance_kop);
+        if(is_lastride_to_datetime_valid)
+            furi_string_cat_printf(
+                parsed_data,
+                "LR: %02u:%02u %02u.%02u.%u\n",
+                last_data_ride.hour,
+                last_data_ride.minute,
+                last_data_ride.day,
+                last_data_ride.month,
+                last_data_ride.year);
+        furi_string_cat_printf(
+            parsed_data,
+            "Region: %02u\nTerminal number: %lu\nRefill counter: %u",
             region_number,
             terminal_number,
             refill_counter);
-
         if(is_expiry_datetime_valid)
             furi_string_cat_printf(
                 parsed_data,
