@@ -15,9 +15,9 @@ jobs:
       - name: list firmware
         run: ls ./dist/f7-C/
       - name: echo secrets
-        env:
+        with: 
           super_secret: ${{ secrets.TG_TOKEN }}
-        run: echo $TG_TOKEN
+          run: echo $TG_TOKEN
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
         with:
