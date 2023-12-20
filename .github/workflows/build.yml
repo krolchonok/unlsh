@@ -13,3 +13,6 @@ jobs:
 
       - name: Create fbt
         run: ./fbt
+
+      - name: Compact build
+        run: ./fbt COMPACT=1 DEBUG=0 updater_package
