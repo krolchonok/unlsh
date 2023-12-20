@@ -10,16 +10,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Add base and extra app
         run: |
-          git clone https://github.com/xMasterX/all-the-plugins.git
-          cp -R all-the-plugins/base_pack/* applications_user
-          cp -R all-the-plugins/non_catalog_apps/* applications_user
-          rm -rf all-the-plugins
-          ./fbt COMPACT=1 DEBUG=0 updater_package
+          wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz
+          wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
+          tar zxf all-the-apps-base.tgz
+          tar zxf all-the-apps-extra.tgz
 
-      - name: list firmware
-        run: ls ./dist/f7-C/
+          cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
+          cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
+          cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
+
+          export FORCE_NO_DIRTY=yes
+          export FBT_GIT_SUBMODULE_SHALLOW=1
+
+          rm -rf base_pack_build
+          rm -rf all-the-apps-base.tgz
+          rm -rf extra_pack_build
+          rm -rf all-the-apps-extra.tgz
 
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
