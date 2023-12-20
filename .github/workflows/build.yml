@@ -25,10 +25,8 @@ jobs:
           rm -rf all-the-apps-base.tgz
           rm -rf extra_pack_build
           rm -rf all-the-apps-extra.tgz
-          
-      - name: Compact build
-        run: ./fbt COMPACT=1 DEBUG=0 updater_package
-        
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+
       - name: list firmware
         run: ls ./dist/f7-C/
 
