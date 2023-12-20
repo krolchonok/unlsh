@@ -17,11 +17,16 @@ jobs:
           wget https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz
           tar zxf all-the-apps-base.tgz
           tar zxf all-the-apps-extra.tgz
-
+          
+          mkdir -p applications/main/clock_app/resources/apps
+          mkdir -p applications/main/clock_app/resources/apps_data
+          
           cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
           cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
           cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
-
+          
+          ls applications/main/clock_app/resources/apps/
+          
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
 
@@ -29,7 +34,9 @@ jobs:
           rm -rf all-the-apps-base.tgz
           rm -rf extra_pack_build
           rm -rf all-the-apps-extra.tgz
-
+          
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+          
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
         with:
