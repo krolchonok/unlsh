@@ -17,7 +17,7 @@ jobs:
       - name: Compact build
         run: ./fbt COMPACT=1 DEBUG=0 updater_package
       - name: list firmware
-        run: ls .\dist\f7-C\ 
+        run: ls ./dist/f7-C/
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
