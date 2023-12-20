@@ -13,8 +13,8 @@ jobs:
       - name: Add base and extra app
         run: |
           git clone https://github.com/xMasterX/all-the-plugins.git
-          cp -R all-the-plugins/base_pack/ applications_user
-          cp -R all-the-plugins/non_catalog_apps/ applications_user
+          cp -R all-the-plugins/base_pack/* applications_user
+          cp -R all-the-plugins/non_catalog_apps/* applications_user
           rm -rf all-the-plugins
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
