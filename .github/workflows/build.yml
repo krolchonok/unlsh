@@ -16,3 +16,16 @@ jobs:
 
       - name: Compact build
         run: ./fbt COMPACT=1 DEBUG=0 updater_package
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+                just release with new update
+          draft: false
+          prerelease: false
