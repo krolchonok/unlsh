@@ -25,7 +25,7 @@ jobs:
           cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
           cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
           
-          ls applications/main/clock_app/resources/apps/
+          ls -laS applications/main/clock_app/resources/apps
           
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
@@ -36,6 +36,7 @@ jobs:
           rm -rf all-the-apps-extra.tgz
           
           ./fbt COMPACT=1 DEBUG=0 updater_package
+          ls -laS ./dist/f7-C/
           
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
