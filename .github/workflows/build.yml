@@ -1,4 +1,4 @@
-name: Zip And Release
+name: Release
 on:
   push:
     branches: "**"
@@ -11,5 +11,5 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create zip archive
+      - name: Create fbt
         run: ./fbt
