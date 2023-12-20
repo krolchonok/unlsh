@@ -10,14 +10,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        
       - name: Compact build
         run: ./fbt COMPACT=1 DEBUG=0 updater_package
+        
       - name: list firmware
         run: ls ./dist/f7-C/
-      - name: echo secrets
-        with: 
-          super_secret: ${{ secrets.TG_TOKEN }}
-          run: echo $TG_TOKEN
+
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
         with:
