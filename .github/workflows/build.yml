@@ -15,14 +15,11 @@ jobs:
       - name: list firmware
         run: ls ./dist/f7-C/
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        uses: svenstaro/upload-release-action@v2
         with:
-          tag_name: latest build
-          release_name: Release
-          body: |
-                just release with new update
-          draft: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./dist/f7-C/*
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "file for upload in flipper"
           prerelease: false
