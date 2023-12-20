@@ -1,12 +1,8 @@
-name: 'Build'
+name: "Build"
 
 on:
   push:
-    branches:
-      - dev
-    tags:
-      - '*'
-  pull_request:
+    branches: "**"
 
 env:
   DEFAULT_TARGET: f7
@@ -19,18 +15,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [f7, f18]    
+        target: [f7, f18]
     steps:
-      - name: 'Wipe workspace'
+      - name: "Wipe workspace"
         run: find ./ -mount -maxdepth 1 -exec rm -rf {} \;
 
-      - name: 'Checkout code'
+      - name: "Checkout code"
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: 'Get commit details'
+      - name: "Get commit details"
         id: names
         run: |
           BUILD_TYPE='DEBUG=1 COMPACT=0'
@@ -48,7 +44,7 @@ jobs:
           echo "TARGET=${{ matrix.target }}" >> $GITHUB_ENV
           echo "TARGET_HW=$(echo "${{ matrix.target }}" | sed 's/f//')" >> $GITHUB_ENV
 
-      - name: 'Check API versions for consistency between targets'
+      - name: "Check API versions for consistency between targets"
         run: |
           set -e
           N_API_HEADER_SIGNATURES=`ls -1 targets/f*/api_symbols.csv | xargs -I {} sh -c "head -n2 {} | md5sum" | sort -u | wc -l`
@@ -59,17 +55,17 @@ jobs:
             exit 1
           fi
 
-      - name: 'Build the firmware and apps'
+      - name: "Build the firmware and apps"
         id: build-fw
         run: |
           ./fbt TARGET_HW=$TARGET_HW $FBT_BUILD_TYPE copro_dist updater_package fap_dist
           echo "firmware_api=$(./fbt TARGET_HW=$TARGET_HW get_apiversion)" >> $GITHUB_OUTPUT
 
-      - name: 'Check for uncommitted changes'
+      - name: "Check for uncommitted changes"
         run: |
           git diff --exit-code
 
-      - name: 'Copy build output'
+      - name: "Copy build output"
         run: |
           set -e
           rm -rf artifacts map_analyser_files || true
@@ -82,13 +78,13 @@ jobs:
           tar czpf "artifacts/flipper-z-${TARGET}-appsymbols-${SUFFIX}.tgz" \
             -C dist/${TARGET}-*/debug_elf .
 
-      - name: 'Copy universal artifacts'
+      - name: "Copy universal artifacts"
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET }}
         run: |
           tar czpf "artifacts/flipper-z-any-scripts-${SUFFIX}.tgz" scripts
           cp build/core2_firmware.tgz "artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz"
 
-      - name: 'Upload artifacts to update server'
+      - name: "Upload artifacts to update server"
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           FILES=$(for ARTIFACT in $(find artifacts -maxdepth 1 -not -type d); do echo "-F files=@${ARTIFACT}"; done)
@@ -98,7 +94,7 @@ jobs:
               ${FILES[@]} \
               "${{ secrets.INDEXER_URL }}"/firmware/uploadfiles
 
-      - name: 'Copy & analyse map analyser files'
+      - name: "Copy & analyse map analyser files"
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET }}
         run: |
           cp build/${DEFAULT_TARGET}-firmware-*/firmware.elf.map map_analyser_files/firmware.elf.map
@@ -127,16 +123,16 @@ jobs:
               ${{ secrets.AMAP_MARIADB_DATABASE }} \
               map_analyser_files/firmware.elf.map.all
 
-      - name: 'Find previous comment'
+      - name: "Find previous comment"
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET && github.event.pull_request }}
         uses: peter-evans/find-comment@v2
         id: find-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: 'Compiled ${{ matrix.target }} firmware for commit'
+          comment-author: "github-actions[bot]"
+          body-includes: "Compiled ${{ matrix.target }} firmware for commit"
 
-      - name: 'Create or update comment'
+      - name: "Create or update comment"
         if: ${{ !github.event.pull_request.head.repo.fork && matrix.target == env.DEFAULT_TARGET && github.event.pull_request }}
         uses: peter-evans/create-or-update-comment@v3
         with:
@@ -149,7 +145,7 @@ jobs:
             - [☁️ Web/App updater](https://lab.flipper.net/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.branch_name}}/flipper-z-${{steps.names.outputs.default_target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.branch_name}}&version=${{steps.names.outputs.commit_sha}})
           edit-mode: replace
 
-      - name: 'SDK submission to staging catalog'
+      - name: "SDK submission to staging catalog"
         if: ${{ steps.names.outputs.event_type == 'tag' && matrix.target == env.DEFAULT_TARGET }}
         uses: ./.github/actions/submit_sdk
         with:
@@ -159,7 +155,7 @@ jobs:
           firmware-target: ${{ matrix.target }}
           firmware-version: ${{ steps.names.outputs.suffix }}
 
-      - name: 'SDK submission to prod catalog'
+      - name: "SDK submission to prod catalog"
         if: ${{ steps.names.outputs.event_type == 'tag' && matrix.target == env.DEFAULT_TARGET }}
         uses: ./.github/actions/submit_sdk
         with:
