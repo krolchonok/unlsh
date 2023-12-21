@@ -19,14 +19,12 @@ jobs:
           tar zxf base_pack.tgz
           tar zxf extra_pack.tgz
 
-          mkdir -p applications/main/clock_app/resources/apps
-          mkdir -p applications/main/clock_app/resources/apps_data
+          mkdir -p applications/main/gpio/resources/apps
+          mkdir -p applications/main/gpio/resources/apps_data
 
-          cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
-          cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
-          cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
-
-          ls -laS applications/main/clock_app/resources/apps
+          cp -R base_pack_build/artifacts-base/* applications/main/gpio/resources/apps/
+          cp -R base_pack_build/apps_data/* applications/main/gpio/resources/apps_data/
+          cp -R extra_pack_build/artifacts-extra/* applications/main/gpio/resources/apps/
 
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
