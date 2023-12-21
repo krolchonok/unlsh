@@ -29,7 +29,7 @@ jobs:
 
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
-
+          export DIST_SUFFIX=my_fork_v1
           rm -rf base_pack_build
           rm -rf all-the-apps-base.tgz
           rm -rf extra_pack_build
