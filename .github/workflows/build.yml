@@ -43,7 +43,7 @@ jobs:
           token: ${{ secrets.tg_token }}
           chatid: ${{ secrets.chat_id }}
           replymessage: ${{ secrets.reply_message_id}}
-        run: curl -F document=@"./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz" https://api.telegram.org/bot$token/sendDocument\?chat_id\=$chatid\&reply_to_message_id\=$replymessage
+        run: curl -F document=@"./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz" https://api.telegram.org/bot$token/sendDocument\?chat_id\=$chatid\&reply_to_message_id\=$replymessage > /dev/null
       
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
