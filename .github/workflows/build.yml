@@ -42,7 +42,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./dist/f7-C/flipper-z-f7-update-local.tgz
+          file: ./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz
           tag: ${{ github.ref }}
           overwrite: true
           body: "file for upload in flipper"
