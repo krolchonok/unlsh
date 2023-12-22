@@ -159,61 +159,10 @@ void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str) {
     if(!str) return;
     x += canvas->offset_x;
     y += canvas->offset_y;
-    u8g2_DrawStr(&canvas->fb, x, y, str);
-}
-
-void canvas_draw_utf8_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str) {
-    furi_assert(canvas);
-    if(!str) return;
-    x += canvas->offset_x;
-    y += canvas->offset_y;
     u8g2_DrawUTF8(&canvas->fb, x, y, str);
 }
 
 void canvas_draw_str_aligned(
-    Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    Align horizontal,
-    Align vertical,
-    const char* str) {
-    furi_assert(canvas);
-    if(!str) return;
-    x += canvas->offset_x;
-    y += canvas->offset_y;
-
-    switch(horizontal) {
-    case AlignLeft:
-        break;
-    case AlignRight:
-        x -= u8g2_GetStrWidth(&canvas->fb, str);
-        break;
-    case AlignCenter:
-        x -= (u8g2_GetStrWidth(&canvas->fb, str) / 2);
-        break;
-    default:
-        furi_crash();
-        break;
-    }
-
-    switch(vertical) {
-    case AlignTop:
-        y += u8g2_GetAscent(&canvas->fb);
-        break;
-    case AlignBottom:
-        break;
-    case AlignCenter:
-        y += (u8g2_GetAscent(&canvas->fb) / 2);
-        break;
-    default:
-        furi_crash();
-        break;
-    }
-
-    u8g2_DrawStr(&canvas->fb, x, y, str);
-}
-
-void canvas_draw_utf8_str_aligned(
     Canvas* canvas,
     uint8_t x,
     uint8_t y,
@@ -257,12 +206,6 @@ void canvas_draw_utf8_str_aligned(
 }
 
 uint16_t canvas_string_width(Canvas* canvas, const char* str) {
-    furi_assert(canvas);
-    if(!str) return 0;
-    return u8g2_GetStrWidth(&canvas->fb, str);
-}
-
-uint16_t canvas_utf8_string_width(Canvas* canvas, const char* str) {
     furi_assert(canvas);
     if(!str) return 0;
     return u8g2_GetUTF8Width(&canvas->fb, str);
@@ -387,10 +330,10 @@ static void canvas_draw_u8g2_bitmap_int(
 
 void canvas_draw_u8g2_bitmap(
     u8g2_t* u8g2,
-    u8g2_uint_t x,
-    u8g2_uint_t y,
-    u8g2_uint_t w,
-    u8g2_uint_t h,
+    uint8_t x,
+    uint8_t y,
+    uint8_t w,
+    uint8_t h,
     const uint8_t* bitmap,
     IconRotation rotation) {
     u8g2_uint_t blen;
