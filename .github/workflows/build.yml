@@ -1,8 +1,5 @@
 name: Release
-on:
-  push:
-    branches: "**"
-
+on: workflow_dispatch 
 jobs:
   zip:
     permissions: write-all
