@@ -10,30 +10,18 @@ jobs:
 
       - name: Add base and extra app
         run: |
-          wget https://github.com/krolchonok/all-the-plugins/releases/latest/download/base_pack.tgz
-          wget https://github.com/krolchonok/all-the-plugins/releases/latest/download/extra_pack.tgz
+          git clone --recursive https://github.com/krolchonok/all-the-plugins
           
-          tar zxf base_pack.tgz
-          tar zxf extra_pack.tgz
+          cp -r all-the-plugins/non_catalog_apps/* applications_user/
+          cp -r all-the-plugins/base_pack/* applications_user/
 
-          mkdir -p applications/main/gpio/resources/apps
-          mkdir -p applications/main/gpio/resources/apps_data
-
-          cp -R base_pack_build/artifacts-base/* applications/main/gpio/resources/apps/
-          cp -R base_pack_build/apps_data/* applications/main/gpio/resources/apps_data/
-          cp -R extra_pack_build/artifacts-extra/* applications/main/gpio/resources/apps/
-
+          rm -rf all-the-plugins
+          
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
           export DIST_SUFFIX=my_fork_v1
-          
-          rm -rf base_pack_build
-          rm -rf all-the-apps-base.tgz
-          rm -rf extra_pack_build
-          rm -rf all-the-apps-extra.tgz
 
           ./fbt COMPACT=1 DEBUG=0 updater_package
-          ls -laS ./dist/f7-C/
 
       - name: Send to telegram 
         env:
