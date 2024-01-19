@@ -115,7 +115,7 @@ static bool washcity_read(Nfc* nfc, NfcDevice* device) {
 
         nfc_device_set_data(device, NfcProtocolMfClassic, data);
 
-        is_read = true;
+        is_read = mf_classic_is_card_read(data);
     } while(false);
 
     mf_classic_free(data);
@@ -161,7 +161,7 @@ static bool washcity_parse(const NfcDevice* device, FuriString* parsed_data) {
 
         furi_string_printf(
             parsed_data,
-            "\e#WashCity\nCard number: %0*llX\nBalance: %lu.%02u USD",
+            "\e#WashCity\nCard number: %0*llX\nBalance: %lu.%02u EUR",
             uid_len * 2,
             card_number,
             balance_usd,
