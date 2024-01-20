@@ -893,15 +893,19 @@ static bool emv_parse(const NfcDevice* device, FuriString* parsed_data) {
         furi_string_cat_printf(parsed_data, "\nPAN: ");
         for(uint8_t i = 0; i < app.pan_len; i++) {
             furi_string_cat_printf(parsed_data, "%02X", app.pan[i]);
-            if((i != 0) && (i % 2 != 0)) furi_string_cat_printf(parsed_data, " ");
+            if((i != 0) && (i % 2 != 0) && (i != app.pan_len - 1))
+                furi_string_cat_printf(parsed_data, " ");
         }
 
         furi_string_cat_printf(parsed_data, "\nExp: %02X/%02X", app.exp_month, app.exp_year);
 
-        furi_string_cat_printf(parsed_data, "\nCountry: %s", get_country_name(app.country_code));
+        char* country_code = get_country_name(app.country_code);
+        if(strcmp(country_code, "UNKNOWN"))
+            furi_string_cat_printf(parsed_data, "\nCountry: %s", country_code);
 
-        furi_string_cat_printf(
-            parsed_data, "\nCurrency: %s", get_currency_name(app.currency_code));
+        char* currency_code = get_country_name(app.country_code);
+        if(strcmp(currency_code, "UNKNOWN"))
+            furi_string_cat_printf(parsed_data, "\nCurrency: %s", currency_code);
 
         furi_string_cat_printf(parsed_data, "\nAID: ");
         for(uint8_t i = 0; i < app.aid_len; i++)
