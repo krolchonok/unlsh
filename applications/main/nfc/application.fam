@@ -174,21 +174,21 @@ App(
 )
 
 App(
-    appid="ndef_parser",
-    apptype=FlipperAppType.PLUGIN,
-    entry_point="ndef_plugin_ep",
-    targets=["f7"],
-    requires=["nfc"],
-    sources=["plugins/supported_cards/ndef.c"],
-)
-
-App(
     appid="emv_parser",
     apptype=FlipperAppType.PLUGIN,
     entry_point="emv_plugin_ep",
     targets=["f7"],
     requires=["nfc"],
     sources=["plugins/supported_cards/emv.c"],
+)
+
+App(
+    appid="ndef_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="ndef_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/ndef.c"],
 )
 
 App(

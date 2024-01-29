@@ -82,11 +82,11 @@ static NfcCommand emv_poller_handler_select_application(EmvPoller* instance) {
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Select application success");
-        instance->state = EmvPollerStateGetProcessingOptions;
     } else {
         FURI_LOG_E(TAG, "Failed to select application");
-        instance->state = EmvPollerStateReadFailed;
+        // We have to try GPO request with empty tag
     }
+    instance->state = EmvPollerStateGetProcessingOptions;
 
     return NfcCommandContinue;
 }
@@ -96,31 +96,35 @@ static NfcCommand emv_poller_handler_get_processing_options(EmvPoller* instance)
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Get processing options success");
-        if(instance->data->emv_application.pan_len > 0) {
-            instance->state = EmvPollerStateReadSuccess;
-        } else {
-            FURI_LOG_D(TAG, "No AFL still. Fallback to bruteforce files");
-            instance->state = EmvPollerStateReadFiles;
-        }
     } else {
         FURI_LOG_E(TAG, "Failed to get processing options");
-        instance->state = EmvPollerStateReadFiles;
     }
 
+    // Read another informations
+    instance->state = EmvPollerStateReadFiles;
     return NfcCommandContinue;
 }
 
 static NfcCommand emv_poller_handler_read_files(EmvPoller* instance) {
-    instance->error = emv_poller_read_files(instance);
+    instance->error = emv_poller_read_afl(instance);
 
     if(instance->error == EmvErrorNone) {
         FURI_LOG_D(TAG, "Read files success");
-        instance->state = EmvPollerStateReadSuccess;
+        instance->state = EmvPollerStateReadExtra;
     } else {
         FURI_LOG_E(TAG, "Failed to read files");
         instance->state = EmvPollerStateReadFailed;
     }
 
+    return NfcCommandContinue;
+}
+
+static NfcCommand emv_poller_handler_read_extra_data(EmvPoller* instance) {
+    emv_poller_read_log_entry(instance);
+    emv_poller_get_last_online_atc(instance);
+    emv_poller_get_pin_try_counter(instance);
+
+    instance->state = EmvPollerStateReadSuccess;
     return NfcCommandContinue;
 }
 
@@ -147,6 +151,7 @@ static const EmvPollerReadHandler emv_poller_read_handler[EmvPollerStateNum] = {
     [EmvPollerStateSelectApplication] = emv_poller_handler_select_application,
     [EmvPollerStateGetProcessingOptions] = emv_poller_handler_get_processing_options,
     [EmvPollerStateReadFiles] = emv_poller_handler_read_files,
+    [EmvPollerStateReadExtra] = emv_poller_handler_read_extra_data,
     [EmvPollerStateReadFailed] = emv_poller_handler_read_fail,
     [EmvPollerStateReadSuccess] = emv_poller_handler_read_success,
 };
