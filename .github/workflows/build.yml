@@ -1,5 +1,5 @@
 name: Release
-on: workflow_dispatch 
+on: workflow_dispatch
 jobs:
   zip:
     permissions: write-all
@@ -8,28 +8,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add base and extra app
+      - name: Add base
         run: |
           git clone --recursive https://github.com/krolchonok/all-the-plugins
-          
-          cp -r all-the-plugins/non_catalog_apps/* applications_user/
+
           cp -r all-the-plugins/base_pack/* applications_user/
 
-          rm -rf all-the-plugins
-          
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
           export DIST_SUFFIX=my_fork_v1
 
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
-      - name: Send to telegram 
+      - name: Send to telegram
         env:
           token: ${{ secrets.tg_token }}
           chatid: ${{ secrets.chat_id }}
           replymessage: ${{ secrets.reply_message_id}}
         run: curl -F document=@"./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz" https://api.telegram.org/bot$token/sendDocument\?chat_id\=$chatid\&reply_to_message_id\=$replymessage > /dev/null
-      
+
       - name: Create Release
         uses: svenstaro/upload-release-action@v2
         with:
