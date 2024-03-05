@@ -23,21 +23,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/core_defines.h"
 #include "nfc_supported_card_plugin.h"
+#include <flipper_application.h>
 
 #include "protocols/mf_classic/mf_classic.h"
-#include <flipper_application/flipper_application.h>
 
-#include <nfc/nfc_device.h>
-#include <bit_lib/bit_lib.h>
-#include <nfc/protocols/mf_classic/mf_classic_poller_sync.h>
-
-#include <furi_hal_rtc.h>
+#include <bit_lib.h>
+#include <datetime.h>
+#include <locale/locale.h>
 
 #define TAG "Umarsh"
 
-bool parse_datetime(uint16_t date, FuriHalRtcDateTime* result) {
+bool parse_datetime(uint16_t date, DateTime* result) {
     result->year = 2000 + (date >> 9);
     result->month = date >> 5 & 0x0F;
     result->day = date & 0x1F;
@@ -85,28 +82,29 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint16_t balance_rub = (bit_lib_bytes_to_num_be(block_start_ptr + 8, 2)) & 0x7FFF;
         const uint8_t balance_kop = bit_lib_bytes_to_num_be(block_start_ptr + 10, 1) & 0x7F;
 
-        FuriHalRtcDateTime expiry_datetime;
+        DateTime expiry_datetime;
         bool is_expiry_datetime_valid = parse_datetime(expiry_date, &expiry_datetime);
 
-        FuriHalRtcDateTime valid_to_datetime;
+        DateTime valid_to_datetime;
         bool is_valid_to_datetime_valid = parse_datetime(valid_to, &valid_to_datetime);
 
-        FuriHalRtcDateTime last_refill_datetime;
+        DateTime last_refill_datetime;
         bool is_last_refill_datetime_valid =
             parse_datetime(last_refill_date, &last_refill_datetime);
 
-        const uint8_t* blocktwo =
-            &data->block[mf_classic_get_first_block_num_of_sector(0) + 1].data[0];
+        LocaleDateFormat date_format = locale_get_date_format();
+        const char* separator = (date_format == LocaleDateFormatDMY) ? "." : "/";
 
-        const uint16_t tempdataride = nfc_util_bytes2num(blocktwo + 2, 2);
+        FuriString* expiry_datetime_str = furi_string_alloc();
+        locale_format_date(expiry_datetime_str, &expiry_datetime, date_format, separator);
 
-        FuriHalRtcDateTime last_data_ride;
+        FuriString* valid_to_datetime_str = furi_string_alloc();
+        locale_format_date(valid_to_datetime_str, &valid_to_datetime, date_format, separator);
 
-        bool is_lastride_to_datetime_valid = parse_datetime(tempdataride, &last_data_ride);
-        const uint16_t temptimeride = nfc_util_bytes2num(blocktwo, 2) & 0x1FFF;
+        FuriString* last_refill_datetime_str = furi_string_alloc();
+        locale_format_date(
+            last_refill_datetime_str, &last_refill_datetime, date_format, separator);
 
-        last_data_ride.hour = temptimeride / 100;
-        last_data_ride.minute = temptimeride % 100;
         furi_string_cat_printf(
             parsed_data,
             "Volna\nCard number: %lu\nBalance: %u.%02u\n",
@@ -130,25 +128,17 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
             refill_counter);
         if(is_expiry_datetime_valid)
             furi_string_cat_printf(
-                parsed_data,
-                "\nExpires: %02u.%02u.%u",
-                expiry_datetime.day,
-                expiry_datetime.month,
-                expiry_datetime.year);
+                parsed_data, "\nExpires: %s", furi_string_get_cstr(expiry_datetime_str));
         if(is_valid_to_datetime_valid)
             furi_string_cat_printf(
-                parsed_data,
-                "\nValid to: %02u.%02u.%u",
-                valid_to_datetime.day,
-                valid_to_datetime.month,
-                valid_to_datetime.year);
+                parsed_data, "\nValid to: %s", furi_string_get_cstr(valid_to_datetime_str));
         if(is_last_refill_datetime_valid)
             furi_string_cat_printf(
-                parsed_data,
-                "\nLast refill: %02u.%02u.%u",
-                last_refill_datetime.day,
-                last_refill_datetime.month,
-                last_refill_datetime.year);
+                parsed_data, "\nLast refill: %s", furi_string_get_cstr(last_refill_datetime_str));
+
+        furi_string_free(expiry_datetime_str);
+        furi_string_free(valid_to_datetime_str);
+        furi_string_free(last_refill_datetime_str);
 
         parsed = true;
     } while(false);
