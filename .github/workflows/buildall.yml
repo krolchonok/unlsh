@@ -1,0 +1,38 @@
+name: ReleaseFull
+on: workflow_dispatch
+jobs:
+  zip:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Add base
+        run: |
+          git clone --recursive https://github.com/krolchonok/all-the-plugins
+          
+          cp -r all-the-plugins/base_pack/* applications_user/
+          cp -r all-the-plugins/non_catalog_apps/* applications_user/
+          
+          export FORCE_NO_DIRTY=yes
+          export FBT_GIT_SUBMODULE_SHALLOW=1
+          export DIST_SUFFIX=my_fork_v1
+          ./fbt COMPACT=1 DEBUG=0 updater_package
+          cp ./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz ./dist/f7-C/flipper-z-f7-update-my_fork_v1_full.tgz
+      - name: Send to telegram
+        env:
+          token: ${{ secrets.tg_token }}
+          chatid: ${{ secrets.chat_id }}
+          replymessage: ${{ secrets.reply_message_id}}
+        run: curl -F document=@"./dist/f7-C/flipper-z-f7-update-my_fork_v1_full.tgz" https://api.telegram.org/bot$token/sendDocument\?chat_id\=$chatid\&reply_to_message_id\=$replymessage > /dev/null
+
+      - name: Create Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./dist/f7-C/flipper-z-f7-update-my_fork_v1_full.tgz
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "file for upload in flipper"
+          prerelease: false
