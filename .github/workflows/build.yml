@@ -13,7 +13,6 @@ jobs:
           git clone --recursive https://github.com/krolchonok/all-the-plugins
           
           cp -r all-the-plugins/base_pack/* applications_user/
-          cp -r all-the-plugins/non_catalog_apps/* applications_user/
           
           export FORCE_NO_DIRTY=yes
           export FBT_GIT_SUBMODULE_SHALLOW=1
