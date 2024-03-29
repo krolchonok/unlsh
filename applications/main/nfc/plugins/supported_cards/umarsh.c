@@ -53,9 +53,13 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         if(data->type != MfClassicType1k) break;
 
         const uint8_t ticket_sector = 8;
+        const uint8_t ridedata_sector = 0;
 
         const uint8_t ticket_sector_start_block_number =
             mf_classic_get_first_block_num_of_sector(ticket_sector);
+
+        const uint8_t ridedata_sector_start_block_number =
+            mf_classic_get_first_block_num_of_sector(ridedata_sector);
 
         // Validate specific for Umarsh ticket sector header
         const uint8_t* block_start_ptr = &data->block[ticket_sector_start_block_number].data[0];
@@ -81,6 +85,15 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
         const uint16_t last_refill_date = bit_lib_bytes_to_num_be(block_start_ptr + 6, 2);
         const uint16_t balance_rub = (bit_lib_bytes_to_num_be(block_start_ptr + 8, 2)) & 0x7FFF;
         const uint8_t balance_kop = bit_lib_bytes_to_num_be(block_start_ptr + 10, 1) & 0x7F;
+
+        // Data parsing datatime
+        block_start_ptr = &data->block[ridedata_sector_start_block_number + 1].data[0];
+
+        DateTime last_ride;
+        uint16_t lastride_data = (block_start_ptr[2] << 8 | block_start_ptr[3]);
+        last_ride.year = 2000 + (lastride_data >> 9);
+        last_ride.month = lastride_data >> 5 & 0x0F;
+        last_ride.day = lastride_data & 0x1F;
 
         DateTime expiry_datetime;
         bool is_expiry_datetime_valid = parse_datetime(expiry_date, &expiry_datetime);
@@ -111,15 +124,9 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
             card_number,
             balance_rub,
             balance_kop);
-        if(is_lastride_to_datetime_valid)
+        if(is_valid_to_datetime_valid)
             furi_string_cat_printf(
-                parsed_data,
-                "LR: %02u:%02u %02u.%02u.%u\n",
-                last_data_ride.hour,
-                last_data_ride.minute,
-                last_data_ride.day,
-                last_data_ride.month,
-                last_data_ride.year);
+                parsed_data, "LR:  %u.%u.%u\n", last_ride.day, last_ride.month, last_ride.year);
         furi_string_cat_printf(
             parsed_data,
             "Region: %02u\nTerminal number: %lu\nRefill counter: %u",
