@@ -124,21 +124,26 @@ static bool umarsh_parse(const NfcDevice* device, FuriString* parsed_data) {
             card_number,
             balance_rub,
             balance_kop);
+
         if(is_valid_to_datetime_valid)
             furi_string_cat_printf(
                 parsed_data, "LR:  %u.%u.%u\n", last_ride.day, last_ride.month, last_ride.year);
+
         furi_string_cat_printf(
             parsed_data,
             "Region: %02u\nTerminal number: %lu\nRefill counter: %u",
             region_number,
             terminal_number,
             refill_counter);
+
         if(is_expiry_datetime_valid)
             furi_string_cat_printf(
                 parsed_data, "\nExpires: %s", furi_string_get_cstr(expiry_datetime_str));
+
         if(is_valid_to_datetime_valid)
             furi_string_cat_printf(
                 parsed_data, "\nValid to: %s", furi_string_get_cstr(valid_to_datetime_str));
+
         if(is_last_refill_datetime_valid)
             furi_string_cat_printf(
                 parsed_data, "\nLast refill: %s", furi_string_get_cstr(last_refill_datetime_str));
