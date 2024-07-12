@@ -264,10 +264,28 @@ App(
 )
 
 App(
+    appid="skylanders_parser",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="skylanders_plugin_ep",
+    targets=["f7"],
+    requires=["nfc"],
+    sources=["plugins/supported_cards/skylanders.c"],
+)
+
+App(
+    appid="nfc_cli",
+    targets=["f7"],
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="nfc_cli_plugin_ep",
+    requires=["cli"],
+    sources=["nfc_cli.c"],
+)
+
+App(
     appid="nfc_start",
     targets=["f7"],
     apptype=FlipperAppType.STARTUP,
     entry_point="nfc_on_system_start",
-    sources=["nfc_cli.c"],
+    sources=["nfc_start.c"],
     order=30,
 )

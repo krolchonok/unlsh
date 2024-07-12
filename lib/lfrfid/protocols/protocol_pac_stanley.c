@@ -96,7 +96,7 @@ bool protocol_pac_stanley_decoder_feed(ProtocolPACStanley* protocol, bool level,
 
     if(duration > PAC_STANLEY_MAX_TIME) return false;
 
-    uint8_t pulses = (uint8_t)round((float)duration / PAC_STANLEY_CYCLE_LENGTH);
+    uint8_t pulses = (uint8_t)roundf((float)duration / PAC_STANLEY_CYCLE_LENGTH);
 
     // Handle last stopbit & preamble (1 sb, 8 bit preamble)
     if(pulses >= 9 && !protocol->got_preamble) {
@@ -137,7 +137,8 @@ bool protocol_pac_stanley_encoder_start(ProtocolPACStanley* protocol) {
     uint8_to_hex_chars(protocol->data, &idbytes[2], 8);
 
     // insert start and stop bits
-    for(size_t i = 0; i < 16; i++) protocol->encoded_data[i] = 0x40 >> ((i + 3) % 5 * 2);
+    for(size_t i = 0; i < 16; i++)
+        protocol->encoded_data[i] = 0x40 >> ((i + 3) % 5 * 2);
 
     protocol->encoded_data[0] = 0xFF; // mark + stop
     protocol->encoded_data[1] = 0x20; // start + reflect8(STX)

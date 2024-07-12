@@ -8,6 +8,7 @@
 
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_hsem.h>
+#include <stm32wb55_linker.h>
 
 #include <hsem_map.h>
 
@@ -15,6 +16,11 @@
 #include <task.h>
 
 #define TAG "FuriHalFlash"
+
+#ifdef FLASH_OP_DEBUG
+#undef FURI_LOG_T
+#define FURI_LOG_T(...)
+#endif
 
 #define FURI_HAL_CRITICAL_MSG "Critical flash operation fail"
 #define FURI_HAL_FLASH_READ_BLOCK (8U)
@@ -51,9 +57,6 @@
 #define IS_FLASH_PROGRAM_ADDRESS(__VALUE__)                                             \
     (((__VALUE__) >= FLASH_BASE) && ((__VALUE__) <= (FLASH_BASE + FLASH_SIZE - 8UL)) && \
      (((__VALUE__) % 8UL) == 0UL))
-
-/* Free flash space borders, exported by linker */
-extern const void __free_flash_start__;
 
 size_t furi_hal_flash_get_base(void) {
     return FLASH_BASE;
@@ -148,9 +151,8 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
     /* Erase activity notification */
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
 
-    /* 64mHz 5us core2 flag protection */
-    for(volatile uint32_t i = 0; i < 35; i++)
-        ;
+    /* 5us core2 flag protection */
+    furi_delay_us(5);
 
     FuriHalCortexTimer timer = furi_hal_cortex_timer_get(FURI_HAL_FLASH_C2_LOCK_TIMEOUT_MS * 1000);
     while(true) {
@@ -295,6 +297,7 @@ bool furi_hal_flash_wait_last_operation(uint32_t timeout) {
 }
 
 void furi_hal_flash_erase(uint8_t page) {
+    uint32_t op_stat = DWT->CYCCNT;
     furi_hal_flash_begin(true);
 
     /* Ensure that controller state is valid */
@@ -317,6 +320,12 @@ void furi_hal_flash_erase(uint8_t page) {
     furi_hal_flush_cache();
 
     furi_hal_flash_end(true);
+    op_stat = DWT->CYCCNT - op_stat;
+    FURI_LOG_T(
+        TAG,
+        "erase took %lu clocks or %luus",
+        op_stat,
+        op_stat / furi_hal_cortex_instructions_per_microsecond());
 }
 
 static inline void furi_hal_flash_write_dword_internal_nowait(size_t address, uint64_t* data) {
@@ -339,6 +348,7 @@ static inline void furi_hal_flash_write_dword_internal(size_t address, uint64_t*
 }
 
 void furi_hal_flash_write_dword(size_t address, uint64_t data) {
+    uint32_t op_stat = DWT->CYCCNT;
     furi_hal_flash_begin(false);
 
     /* Ensure that controller state is valid */
@@ -361,6 +371,12 @@ void furi_hal_flash_write_dword(size_t address, uint64_t data) {
 
     /* Wait for last operation to be completed */
     furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
+    op_stat = DWT->CYCCNT - op_stat;
+    FURI_LOG_T(
+        TAG,
+        "write_dword took %lu clocks or %fus",
+        op_stat,
+        (double)((float)op_stat / (float)furi_hal_cortex_instructions_per_microsecond()));
 }
 
 static size_t furi_hal_flash_get_page_address(uint8_t page) {
@@ -373,6 +389,7 @@ void furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16
 
     furi_hal_flash_erase(page);
 
+    uint32_t op_stat = DWT->CYCCNT;
     furi_hal_flash_begin(false);
 
     furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
@@ -432,6 +449,12 @@ void furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16
     CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
 
     furi_hal_flash_end(false);
+    op_stat = DWT->CYCCNT - op_stat;
+    FURI_LOG_T(
+        TAG,
+        "program_page took %lu clocks or %luus",
+        op_stat,
+        op_stat / furi_hal_cortex_instructions_per_microsecond());
 }
 
 int16_t furi_hal_flash_get_page_number(size_t address) {
@@ -490,8 +513,7 @@ typedef struct {
     uint32_t* ob_register_address;
 } FuriHalFlashObMapping;
 
-#define OB_REG_DEF(INDEX, REG) \
-    { .ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG) }
+#define OB_REG_DEF(INDEX, REG) {.ob_reg = INDEX, .ob_register_address = (uint32_t*)(REG)}
 
 static const FuriHalFlashObMapping furi_hal_flash_ob_reg_map[FURI_HAL_FLASH_OB_TOTAL_WORDS] = {
     OB_REG_DEF(FuriHalFlashObRegisterUserRead, (&FLASH->OPTR)),

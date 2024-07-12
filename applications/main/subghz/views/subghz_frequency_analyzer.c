@@ -1,7 +1,5 @@
 #include "subghz_frequency_analyzer.h"
-#include "../subghz_i.h"
 
-#include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
@@ -404,7 +402,8 @@ uint32_t round_int(uint32_t value, uint8_t n) {
         value /= 10;
         if(i >= 5) value++;
     }
-    while(on--) value *= 10;
+    while(on--)
+        value *= 10;
     return value;
 }
 

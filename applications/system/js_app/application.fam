@@ -48,6 +48,14 @@ App(
 )
 
 App(
+    appid="js_storage",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_storage_ep",
+    requires=["js_app"],
+    sources=["modules/js_storage.c"],
+)
+
+App(
     appid="js_usbdisk",
     apptype=FlipperAppType.PLUGIN,
     entry_point="js_usbdisk_ep",
@@ -116,4 +124,12 @@ App(
     entry_point="js_widget_ep",
     requires=["js_app"],
     sources=["modules/js_widget.c"],
+)
+
+App(
+    appid="js_vgm",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="js_vgm_ep",
+    requires=["js_app"],
+    sources=["modules/js_vgm/*.c", "modules/js_vgm/ICM42688P/*.c"],
 )
