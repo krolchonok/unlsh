@@ -7,11 +7,11 @@
 
 #define TAG "SubGhzSetting"
 
-#define SUBGHZ_SETTING_FILE_TYPE "Flipper SubGhz Setting File"
+#define SUBGHZ_SETTING_FILE_TYPE    "Flipper SubGhz Setting File"
 #define SUBGHZ_SETTING_FILE_VERSION 1
 
 #define FREQUENCY_FLAG_DEFAULT (1 << 31)
-#define FREQUENCY_MASK (0xFFFFFFFF ^ FREQUENCY_FLAG_DEFAULT)
+#define FREQUENCY_MASK         (0xFFFFFFFF ^ FREQUENCY_FLAG_DEFAULT)
 
 /* Default */
 static const uint32_t subghz_frequency_list[] = {
@@ -36,6 +36,8 @@ static const uint32_t subghz_frequency_list[] = {
     314980000,
     315000000,
     318000000,
+    320000000,
+    320150000,
     330000000,
     345000000,
     348000000,

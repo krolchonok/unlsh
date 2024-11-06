@@ -97,7 +97,6 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
 
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
-    view_dispatcher_enable_queue(subghz->view_dispatcher);
 
     subghz->scene_manager = scene_manager_alloc(&subghz_scene_handlers, subghz);
     view_dispatcher_set_event_callback_context(subghz->view_dispatcher, subghz);
@@ -198,6 +197,10 @@ SubGhz* subghz_alloc(bool alloc_for_tx_only) {
     subghz->last_settings = subghz_last_settings_alloc();
     size_t preset_count = subghz_setting_get_preset_count(setting);
     subghz_last_settings_load(subghz->last_settings, preset_count);
+
+    // Set LED and Amp GPIO control state
+    furi_hal_subghz_set_ext_leds_and_amp(subghz->last_settings->leds_and_amp);
+
     if(!alloc_for_tx_only) {
         subghz_txrx_set_preset_internal(
             subghz->txrx, subghz->last_settings->frequency, subghz->last_settings->preset_index);

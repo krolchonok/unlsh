@@ -8,16 +8,16 @@
 
 #define APPS_COUNT (FLIPPER_APPS_COUNT + FLIPPER_EXTERNAL_APPS_COUNT)
 
-#define DEFAULT_INDEX (0)
+#define DEFAULT_INDEX         (0)
 #define EXTERNAL_BROWSER_NAME ("Apps Menu (Default)")
-#define PASSPORT_NAME ("Passport (Default)")
+#define PASSPORT_NAME         ("Passport (Default)")
 
 #define NONE_APPLICATION_INDEX (1)
-#define NONE_APPLICATION_NAME "None (disable)"
-#define LOCK_APPLICATION_NAME "Lock Flipper"
+#define NONE_APPLICATION_NAME  "None (disable)"
+#define LOCK_APPLICATION_NAME  "Lock Flipper"
 
 #define EXTERNAL_APPLICATION_INDEX (2)
-#define EXTERNAL_APPLICATION_NAME ("[Select App]")
+#define EXTERNAL_APPLICATION_NAME  ("[Select App]")
 
 #define MAIN_LIST_APPLICATION_OFFSET (3)
 
@@ -191,22 +191,28 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
             if(dialog_file_browser_show(app->dialogs, temp_path, temp_path, &browser_options)) {
                 submenu_reset(app->submenu); // Prevent menu from being shown when we exiting scene
-                strncpy(
+                strlcpy(
                     curr_favorite_app->name_or_path,
                     furi_string_get_cstr(temp_path),
-                    MAX_APP_LENGTH);
+                    sizeof(curr_favorite_app->name_or_path));
                 consumed = true;
             }
         } else {
             size_t app_index = event.event - MAIN_LIST_APPLICATION_OFFSET;
             const char* name = favorite_fap_get_app_name(app_index);
-            if(name) strncpy(curr_favorite_app->name_or_path, name, MAX_APP_LENGTH);
+            if(name)
+                strlcpy(
+                    curr_favorite_app->name_or_path,
+                    name,
+                    sizeof(curr_favorite_app->name_or_path));
             consumed = true;
         }
         if(consumed) {
             scene_manager_previous_scene(app->scene_manager);
         };
         consumed = true;
+
+        desktop_settings_save(&app->settings);
     }
 
     furi_string_free(temp_path);
@@ -215,6 +221,5 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
-    DESKTOP_SETTINGS_SAVE(&app->settings);
     submenu_reset(app->submenu);
 }

@@ -30,7 +30,7 @@
 
 #define TAG "NfcTest"
 
-#define NFC_TEST_NFC_DEV_PATH EXT_PATH("unit_tests/nfc/nfc_device_test.nfc")
+#define NFC_TEST_NFC_DEV_PATH                  EXT_PATH("unit_tests/nfc/nfc_device_test.nfc")
 #define NFC_APP_MF_CLASSIC_DICT_UNIT_TEST_PATH EXT_PATH("unit_tests/mf_dict.nfc")
 
 #define NFC_TEST_FLAG_WORKER_DONE (1)
@@ -496,7 +496,7 @@ NfcCommand mf_classic_poller_send_frame_callback(NfcGenericEventEx event, void* 
             MfClassicKey key = {
                 .data = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
             };
-            error = mf_classic_poller_auth(instance, 0, &key, MfClassicKeyTypeA, NULL);
+            error = mf_classic_poller_auth(instance, 0, &key, MfClassicKeyTypeA, NULL, false);
             frame_test->state = (error == MfClassicErrorNone) ?
                                     NfcTestMfClassicSendFrameTestStateReadBlock :
                                     NfcTestMfClassicSendFrameTestStateFail;

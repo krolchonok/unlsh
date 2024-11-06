@@ -6,21 +6,21 @@
 
 #include <furi_hal_resources.h>
 
-#define FURI_HAL_NFC_ISO15693_MAX_FRAME_SIZE (1024U)
+#define FURI_HAL_NFC_ISO15693_MAX_FRAME_SIZE         (1024U)
 #define FURI_HAL_NFC_ISO15693_POLLER_MAX_BUFFER_SIZE (64)
 
-#define FURI_HAL_NFC_ISO15693_RESP_SOF_SIZE (5)
-#define FURI_HAL_NFC_ISO15693_RESP_EOF_SIZE (5)
-#define FURI_HAL_NFC_ISO15693_RESP_SOF_MASK (0x1FU)
+#define FURI_HAL_NFC_ISO15693_RESP_SOF_SIZE    (5)
+#define FURI_HAL_NFC_ISO15693_RESP_EOF_SIZE    (5)
+#define FURI_HAL_NFC_ISO15693_RESP_SOF_MASK    (0x1FU)
 #define FURI_HAL_NFC_ISO15693_RESP_SOF_PATTERN (0x17U)
 #define FURI_HAL_NFC_ISO15693_RESP_EOF_PATTERN (0x1DU)
 
 #define FURI_HAL_NFC_ISO15693_RESP_PATTERN_MASK (0x03U)
-#define FURI_HAL_NFC_ISO15693_RESP_PATTERN_0 (0x01U)
-#define FURI_HAL_NFC_ISO15693_RESP_PATTERN_1 (0x02U)
+#define FURI_HAL_NFC_ISO15693_RESP_PATTERN_0    (0x01U)
+#define FURI_HAL_NFC_ISO15693_RESP_PATTERN_1    (0x02U)
 
 // Derived experimentally
-#define FURI_HAL_NFC_ISO15693_POLLER_FWT_COMP_FC (-1300)
+#define FURI_HAL_NFC_ISO15693_POLLER_FWT_COMP_FC   (-1300)
 #define FURI_HAL_NFC_ISO15693_LISTENER_FDT_COMP_FC (2850)
 
 #define BITS_IN_BYTE (8U)
@@ -402,6 +402,24 @@ static FuriHalNfcError furi_hal_nfc_iso15693_listener_tx(
 
 FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void) {
     iso15693_signal_tx_sof(furi_hal_nfc_iso15693_listener->signal, Iso15693SignalDataRateHi);
+
+    return FuriHalNfcErrorNone;
+}
+
+FuriHalNfcError furi_hal_nfc_iso15693_detect_mode(void) {
+    iso15693_parser_detect_mode(furi_hal_nfc_iso15693_listener->parser);
+
+    return FuriHalNfcErrorNone;
+}
+
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof4(void) {
+    iso15693_parser_force_1outof4(furi_hal_nfc_iso15693_listener->parser);
+
+    return FuriHalNfcErrorNone;
+}
+
+FuriHalNfcError furi_hal_nfc_iso15693_force_1outof256(void) {
+    iso15693_parser_force_1outof256(furi_hal_nfc_iso15693_listener->parser);
 
     return FuriHalNfcErrorNone;
 }

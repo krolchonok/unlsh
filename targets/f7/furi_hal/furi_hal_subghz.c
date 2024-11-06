@@ -20,12 +20,12 @@
 static uint32_t furi_hal_subghz_debug_gpio_buff[2] = {0};
 
 /* DMA Channels definition */
-#define SUBGHZ_DMA (DMA2)
+#define SUBGHZ_DMA             (DMA2)
 #define SUBGHZ_DMA_CH1_CHANNEL (LL_DMA_CHANNEL_1)
 #define SUBGHZ_DMA_CH2_CHANNEL (LL_DMA_CHANNEL_2)
-#define SUBGHZ_DMA_CH1_IRQ (FuriHalInterruptIdDma2Ch1)
-#define SUBGHZ_DMA_CH1_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
-#define SUBGHZ_DMA_CH2_DEF SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
+#define SUBGHZ_DMA_CH1_IRQ     (FuriHalInterruptIdDma2Ch1)
+#define SUBGHZ_DMA_CH1_DEF     SUBGHZ_DMA, SUBGHZ_DMA_CH1_CHANNEL
+#define SUBGHZ_DMA_CH2_DEF     SUBGHZ_DMA, SUBGHZ_DMA_CH2_CHANNEL
 
 /** SubGhz state */
 typedef enum {
@@ -52,6 +52,7 @@ typedef struct {
     const GpioPin* async_mirror_pin;
 
     int8_t rolling_counter_mult;
+    bool ext_leds_and_amp      : 1;
     bool dangerous_frequency_i : 1;
 } FuriHalSubGhz;
 
@@ -60,6 +61,7 @@ volatile FuriHalSubGhz furi_hal_subghz = {
     .regulation = SubGhzRegulationTxRx,
     .async_mirror_pin = NULL,
     .rolling_counter_mult = 1,
+    .ext_leds_and_amp = true,
     .dangerous_frequency_i = false,
 };
 
@@ -77,6 +79,14 @@ void furi_hal_subghz_set_dangerous_frequency(bool state_i) {
 
 void furi_hal_subghz_set_async_mirror_pin(const GpioPin* pin) {
     furi_hal_subghz.async_mirror_pin = pin;
+}
+
+void furi_hal_subghz_set_ext_leds_and_amp(bool enabled) {
+    furi_hal_subghz.ext_leds_and_amp = enabled;
+}
+
+bool furi_hal_subghz_get_ext_leds_and_amp(void) {
+    return furi_hal_subghz.ext_leds_and_amp;
 }
 
 const GpioPin* furi_hal_subghz_get_data_gpio(void) {
@@ -271,7 +281,7 @@ bool furi_hal_subghz_is_rx_data_crc_valid(void) {
     uint8_t data[1];
     cc1101_read_reg(&furi_hal_spi_bus_handle_subghz, CC1101_STATUS_LQI | CC1101_BURST, data);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
-    if(((data[0] >> 7) & 0x01)) {
+    if((data[0] >> 7) & 0x01) {
         return true;
     } else {
         return false;

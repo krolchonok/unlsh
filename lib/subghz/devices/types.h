@@ -11,7 +11,7 @@
 
 #include <flipper_application/flipper_application.h>
 
-#define SUBGHZ_RADIO_DEVICE_PLUGIN_APP_ID "subghz_radio_device"
+#define SUBGHZ_RADIO_DEVICE_PLUGIN_APP_ID      "subghz_radio_device"
 #define SUBGHZ_RADIO_DEVICE_PLUGIN_API_VERSION 2
 
 typedef struct SubGhzDeviceRegistry SubGhzDeviceRegistry;
@@ -94,5 +94,5 @@ struct SubGhzDevice {
 struct SubGhzDeviceConf {
     uint8_t ver;
     bool extended_range;
-    bool power_amp;
+    bool amp_and_leds;
 };

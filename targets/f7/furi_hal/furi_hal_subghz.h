@@ -21,7 +21,7 @@ extern "C" {
 /** Various subghz defines */
 #define FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL (256u)
 #define FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (FURI_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL / 2)
-#define FURI_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME (999u)
+#define FURI_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME  (999u)
 
 /** Switchable Radio Paths */
 typedef enum {
@@ -238,7 +238,10 @@ bool furi_hal_subghz_is_async_tx_complete(void);
  */
 void furi_hal_subghz_stop_async_tx(void);
 
-// External CC1101 Ebytes power amplifier control is now enabled by default
+// External CC1101 Amplifier and LEDs (if present) control
+void furi_hal_subghz_set_ext_leds_and_amp(bool enabled);
+// Get state (enabled by default, can be disabled in radio setting with debug ON)
+bool furi_hal_subghz_get_ext_leds_and_amp(void);
 
 #ifdef __cplusplus
 }

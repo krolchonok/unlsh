@@ -65,12 +65,17 @@ void text_input_set_result_callback(
     size_t text_buffer_size,
     bool clear_default_text);
 
+/**
+ * @brief Sets the minimum length of a TextInput
+ * @param [in] text_input TextInput
+ * @param [in] minimum_length Minimum input length
+ */
+void text_input_set_minimum_length(TextInput* text_input, size_t minimum_length);
+
 void text_input_set_validator(
     TextInput* text_input,
     TextInputValidatorCallback callback,
     void* callback_context);
-
-void text_input_set_minimum_length(TextInput* text_input, size_t minimum_length);
 
 TextInputValidatorCallback text_input_get_validator_callback(TextInput* text_input);
 
