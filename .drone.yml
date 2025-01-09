@@ -114,7 +114,7 @@ steps:
         from_secret: fbt_link
 
   - name: "Bundle self-update packages"
-    image: kramos/alpine-zip
+    image: joshkeegan/zip
     commands:
       - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_TAG}e.tgz .
       - cp artifacts-rgb-patch/flipper-z-f7-update-${DRONE_TAG}r.tgz .
@@ -245,9 +245,11 @@ steps:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/2253303efc0e7211ac2777d2535054cbb872f1e0/discord.sh"
       - chmod +x ./discord.sh
       - sed -n '/## Main changes/,/## Other changes/p' CHANGELOG.md | sed -e 's/## Main changes//' -e 's/## Other changes//' > changelogcut.txt
-      - truncate -s -1 changelogcut.txt
-      - tail -c +2 changelogcut.txt > changelogready.txt
+      - head -c 1544 changelogcut.txt > changelogcutfin.txt
+      - truncate -s -1 changelogcutfin.txt
+      - tail -c +2 changelogcutfin.txt > changelogready.txt
       - rm -f changelogcut.txt
+      - rm -f changelogcutfin.txt
       - echo '' >> changelogready.txt
       - echo '## [Read full changelog](https://github.com/DarkFlippers/unleashed-firmware/releases/tag/'${DRONE_TAG}')' >> changelogready.txt
       - sed -i 's/(releasever)/'${DRONE_TAG}'/g' .ci_files/release_msg_discord.txt
@@ -417,7 +419,7 @@ steps:
         from_secret: fbt_link
 
   - name: "Bundle self-update packages"
-    image: kramos/alpine-zip
+    image: joshkeegan/zip
     commands:
       - cp artifacts-extra-apps/flipper-z-f7-update-${DRONE_BUILD_NUMBER}e.tgz .
       - cp artifacts-rgb-patch/flipper-z-f7-update-${DRONE_BUILD_NUMBER}r.tgz .
@@ -529,14 +531,20 @@ steps:
     commands:
       - wget "https://raw.githubusercontent.com/fieu/discord.sh/2253303efc0e7211ac2777d2535054cbb872f1e0/discord.sh"
       - chmod +x ./discord.sh
-      - sed -n '/## Main changes/,/<br><br>/p' CHANGELOG.md | sed -e 's/<br><br>//' > changelogcut.txt
-      - truncate -s -1 changelogcut.txt
+      - sed -n '/## Main changes/,/## Other changes/p' CHANGELOG.md | sed -e 's/## Main changes//' -e 's/## Other changes//' > changelogcut.txt
+      - head -c 1544 changelogcut.txt > changelogcutfin.txt
+      - truncate -s -1 changelogcutfin.txt
+      - tail -c +2 changelogcutfin.txt > changelogready.txt
+      - rm -f changelogcut.txt
+      - rm -f changelogcutfin.txt
+      - echo '' >> changelogready.txt
+      - echo '## [Read full changelog](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/CHANGELOG.md)' >> changelogready.txt
       - sed -i 's/(buildnum)/'${DRONE_BUILD_NUMBER}'/g' .ci_files/devbuild_msg_discord.txt
       - sed -i 's/(commitsha)/'${DRONE_COMMIT_SHA}'/g' .ci_files/devbuild_msg_discord.txt
       - sed -i 's/(buildnum)/'${DRONE_BUILD_NUMBER}'/g' .ci_files/devbuild_msg_telegram.txt
       - sed -i 's/(commitsha)/'${DRONE_COMMIT_SHA}'/g' .ci_files/devbuild_msg_telegram.txt
       - cp .ci_files/devbuild_msg_telegram.txt tg_dev_message.tpl
-      - ./discord.sh --title "Changelog" --description "$(jq -Rs . <changelogcut.txt | cut -c 2- | rev | cut -c 2- | rev)" --timestamp --text "$(jq -Rs . <.ci_files/devbuild_msg_discord.txt | cut -c 2- | rev | cut -c 2- | rev)" 
+      - ./discord.sh --title "Changelog" --description "$(jq -Rs . <changelogready.txt | cut -c 2- | rev | cut -c 2- | rev)" --timestamp --text "$(jq -Rs . <.ci_files/devbuild_msg_discord.txt | cut -c 2- | rev | cut -c 2- | rev)" 
 
   - name: "Send message to telegram"
     image: appleboy/drone-telegram

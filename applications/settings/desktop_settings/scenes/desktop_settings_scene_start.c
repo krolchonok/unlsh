@@ -9,6 +9,7 @@
 typedef enum {
     DesktopSettingsPinSetup = 0,
     DesktopSettingsAutoLockDelay,
+    DesktopSettingsAutoPowerOff,
     DesktopSettingsBatteryDisplay,
     DesktopSettingsClockDisplay,
     DesktopSettingsChangeName,
@@ -27,6 +28,15 @@ typedef enum {
     DesktopSettingsDummyOk,
     DesktopSettingsDummyOkLong,
 } DesktopSettingsEntry;
+
+// --- auto_power_off_timer
+#define AUTO_POWEROFF_DELAY_COUNT 8
+const char* const auto_poweroff_delay_text[AUTO_POWEROFF_DELAY_COUNT] =
+    {"OFF", "5min", "10min", "15min", "30min", "45min", "60min", "90min"};
+
+const uint32_t auto_poweroff_delay_value[AUTO_POWEROFF_DELAY_COUNT] =
+    {0, 300000, 600000, 900000, 1800000, 2700000, 3600000, 5400000};
+// ---
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -86,6 +96,16 @@ static void desktop_settings_scene_start_clock_enable_changed(VariableItem* item
     app->settings.display_clock = index;
 }
 
+// --- auto_power_off_timer
+static void desktop_settings_scene_start_auto_poweroff_delay_changed(VariableItem* item) {
+    DesktopSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, auto_poweroff_delay_text[index]);
+    app->settings.auto_poweroff_delay_ms = auto_poweroff_delay_value[index];
+}
+// ---
+
 static void desktop_settings_scene_start_auto_lock_delay_changed(VariableItem* item) {
     DesktopSettingsApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
@@ -114,6 +134,22 @@ void desktop_settings_scene_start_on_enter(void* context) {
         app->settings.auto_lock_delay_ms, auto_lock_delay_value, AUTO_LOCK_DELAY_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, auto_lock_delay_text[value_index]);
+
+    // --- auto_power_off_timer
+    item = variable_item_list_add(
+        variable_item_list,
+        "Auto PowerOff",
+        AUTO_POWEROFF_DELAY_COUNT,
+        desktop_settings_scene_start_auto_poweroff_delay_changed,
+        app);
+
+    value_index = value_index_uint32(
+        app->settings.auto_poweroff_delay_ms,
+        auto_poweroff_delay_value,
+        AUTO_POWEROFF_DELAY_COUNT);
+    variable_item_set_current_value_index(item, value_index);
+    variable_item_set_current_value_text(item, auto_poweroff_delay_text[value_index]);
+    // ---
 
     item = variable_item_list_add(
         variable_item_list,
