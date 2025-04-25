@@ -7,6 +7,8 @@
 #include <update_util/update_operation.h>
 #include <notification/notification_messages.h>
 
+#include <loader/loader.h>
+
 #define TAG "Power"
 
 #define POWER_OFF_TIMEOUT_S  (90U)
@@ -245,6 +247,7 @@ static bool power_update_info(Power* power) {
         .is_charging = furi_hal_power_is_charging(),
         .gauge_is_ok = furi_hal_power_gauge_is_ok(),
         .is_shutdown_requested = furi_hal_power_is_shutdown_requested(),
+        .is_otg_enabled = furi_hal_power_is_otg_enabled(),
         .charge = furi_hal_power_get_pct(),
         .health = furi_hal_power_get_bat_health_pct(),
         .capacity_remaining = furi_hal_power_get_battery_remaining_capacity(),
@@ -379,7 +382,130 @@ static void power_handle_reboot(PowerBootMode mode) {
 
     furi_hal_power_reset();
 }
+// get settings from service to settings_app by send message to power queue
+void power_api_get_settings(Power* power, PowerSettings* settings) {
+    furi_assert(power);
+    furi_assert(settings);
 
+    PowerMessage msg = {
+        .type = PowerMessageTypeGetSettings,
+        .settings = settings,
+        .lock = api_lock_alloc_locked(),
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    api_lock_wait_unlock_and_free(msg.lock);
+}
+
+// set settings from settings_app to service by send message to power queue
+void power_api_set_settings(Power* power, const PowerSettings* settings) {
+    furi_assert(power);
+    furi_assert(settings);
+
+    PowerMessage msg = {
+        .type = PowerMessageTypeSetSettings,
+        .csettings = settings,
+        .lock = api_lock_alloc_locked(),
+    };
+
+    furi_check(
+        furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    api_lock_wait_unlock_and_free(msg.lock);
+}
+
+//start furi timer for autopoweroff
+static void power_start_auto_poweroff_timer(Power* power) {
+    if(furi_timer_is_running(power->auto_poweroff_timer)) {
+        furi_timer_stop(power->auto_poweroff_timer);
+    }
+    furi_timer_start(
+        power->auto_poweroff_timer, furi_ms_to_ticks(power->settings.auto_poweroff_delay_ms));
+}
+
+//stop furi timer for autopoweroff
+static void power_stop_auto_poweroff_timer(Power* power) {
+    if(furi_timer_is_running(power->auto_poweroff_timer)) {
+        furi_timer_stop(power->auto_poweroff_timer);
+    }
+}
+
+static uint32_t power_is_running_auto_poweroff_timer(Power* power) {
+    return furi_timer_is_running(power->auto_poweroff_timer);
+}
+
+// start|restart poweroff timer
+static void power_auto_poweroff_callback(const void* value, void* context) {
+    furi_assert(value);
+    furi_assert(context);
+    Power* power = context;
+    power_start_auto_poweroff_timer(power);
+}
+
+// callback for poweroff timer (what we do when timer end)
+static void power_auto_poweroff_timer_callback(void* context) {
+    furi_assert(context);
+    Power* power = context;
+
+    //Dont poweroff device if charger connected
+    if(furi_hal_power_is_charging()) {
+        FURI_LOG_D(TAG, "We dont auto_power_off until battery is charging");
+        power_start_auto_poweroff_timer(power);
+    } else {
+        power_off(power);
+    }
+}
+
+//start|restart timer and events subscription and callbacks for input events (we restart timer when user press keys)
+static void power_auto_poweroff_arm(Power* power) {
+    if(power->settings.auto_poweroff_delay_ms) {
+        if(power->input_events_subscription == NULL) {
+            power->input_events_subscription = furi_pubsub_subscribe(
+                power->input_events_pubsub, power_auto_poweroff_callback, power);
+        }
+        power_start_auto_poweroff_timer(power);
+    }
+}
+
+// stop timer and event subscription
+static void power_auto_poweroff_disarm(Power* power) {
+    power_stop_auto_poweroff_timer(power);
+    if(power->input_events_subscription) {
+        furi_pubsub_unsubscribe(power->input_events_pubsub, power->input_events_subscription);
+        power->input_events_subscription = NULL;
+    }
+}
+
+//check message queue from Loader - is some app started or not (if started we dont do auto poweroff)
+static void power_loader_callback(const void* message, void* context) {
+    furi_assert(context);
+    Power* power = context;
+    const LoaderEvent* event = message;
+
+    // disarm timer if some apps started
+    if(event->type == LoaderEventTypeApplicationBeforeLoad) {
+        power->app_running = true;
+        power_auto_poweroff_disarm(power);
+        // arm timer if some apps was not loaded or was stoped
+    } else if(
+        event->type == LoaderEventTypeApplicationLoadFailed ||
+        event->type == LoaderEventTypeApplicationStopped) {
+        power->app_running = false;
+        power_auto_poweroff_arm(power);
+    }
+}
+
+// apply power settings
+static void power_settings_apply(Power* power) {
+    //apply auto_poweroff settings
+    if(power->settings.auto_poweroff_delay_ms && !power->app_running) {
+        power_auto_poweroff_arm(power);
+    } else if(power_is_running_auto_poweroff_timer(power)) {
+        power_auto_poweroff_disarm(power);
+    }
+}
+
+// do something depend from power queue message
 static void power_message_callback(FuriEventLoopObject* object, void* context) {
     furi_assert(context);
     Power* power = context;
@@ -405,12 +531,68 @@ static void power_message_callback(FuriEventLoopObject* object, void* context) {
     case PowerMessageTypeShowBatteryLowWarning:
         power->show_battery_low_warning = *msg.bool_param;
         break;
+    case PowerMessageTypeGetSettings:
+        furi_assert(msg.lock);
+        *msg.settings = power->settings;
+        break;
+    case PowerMessageTypeSetSettings:
+        furi_assert(msg.lock);
+        power->settings = *msg.csettings;
+        power_settings_apply(power);
+        power_settings_save(&power->settings);
+        break;
+    case PowerMessageTypeReloadSettings:
+        power_settings_load(&power->settings);
+        power_settings_apply(power);
+        break;
+    case PowerMessageTypeSwitchOTG:
+        power->is_otg_requested = *msg.bool_param;
+        if(power->is_otg_requested) {
+            // Only try to enable if VBUS voltage is low, otherwise charger will refuse
+            if(power->info.voltage_vbus < 4.5f) {
+                size_t retries = 5;
+                while(retries-- > 0) {
+                    if(furi_hal_power_enable_otg()) {
+                        break;
+                    }
+                }
+                if(!retries) {
+                    FURI_LOG_W(TAG, "Failed to enable OTG, will try later");
+                }
+            } else {
+                FURI_LOG_W(
+                    TAG,
+                    "Postponing OTG enable: VBUS(%0.1f) >= 4.5v",
+                    (double)power->info.voltage_vbus);
+            }
+        } else {
+            furi_hal_power_disable_otg();
+        }
+        break;
     default:
         furi_crash();
     }
 
     if(msg.lock) {
         api_lock_unlock(msg.lock);
+    }
+}
+
+static void power_charge_supress(Power* power) {
+    // if charge_supress_percent selected (not OFF) and current charge level equal or higher than selected level
+    // then we start supression if we not supress it before.
+    if(power->settings.charge_supress_percent &&
+       power->info.charge >= power->settings.charge_supress_percent) {
+        if(!power->charge_is_supressed) {
+            power->charge_is_supressed = true;
+            furi_hal_power_suppress_charge_enter();
+        }
+        // disable supression if charge_supress_percent OFF but charge still supressed
+    } else {
+        if(power->charge_is_supressed) {
+            power->charge_is_supressed = false;
+            furi_hal_power_suppress_charge_exit();
+        }
     }
 }
 
@@ -426,14 +608,56 @@ static void power_tick_callback(void* context) {
     power_check_charging_state(power);
     // Check and notify about battery level change
     power_check_battery_level_change(power);
+    // charge supress arm/disarm
+    power_charge_supress(power);
     // Update battery view port
     if(need_refresh) {
         view_port_update(power->battery_view_port);
     }
-    // Check OTG status and disable it in case of fault
-    if(furi_hal_power_is_otg_enabled()) {
-        furi_hal_power_check_otg_status();
+    // Check OTG status, disable in case of a fault
+    if(furi_hal_power_check_otg_fault()) {
+        FURI_LOG_E(TAG, "OTG fault detected, disabling OTG");
+        furi_hal_power_disable_otg();
+        power->is_otg_requested = false;
     }
+
+    // Change OTG state if needed (i.e. after disconnecting USB power)
+    if(power->is_otg_requested &&
+       (!power->info.is_otg_enabled && power->info.voltage_vbus < 4.5f)) {
+        FURI_LOG_D(TAG, "OTG requested but not enabled, enabling OTG");
+        furi_hal_power_enable_otg();
+    }
+}
+
+static void power_storage_callback(const void* message, void* context) {
+    furi_assert(context);
+    Power* power = context;
+    const StorageEvent* event = message;
+
+    if(event->type == StorageEventTypeCardMount) {
+        PowerMessage msg = {
+            .type = PowerMessageTypeReloadSettings,
+        };
+
+        furi_check(
+            furi_message_queue_put(power->message_queue, &msg, FuriWaitForever) == FuriStatusOk);
+    }
+}
+
+// loading and initializing power service settings
+static void power_init_settings(Power* power) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    furi_pubsub_subscribe(storage_get_pubsub(storage), power_storage_callback, power);
+
+    if(storage_sd_status(storage) != FSE_OK) {
+        FURI_LOG_D(TAG, "SD Card not ready, skipping settings");
+        return;
+    }
+
+    power_settings_load(&power->settings);
+    power_settings_apply(power);
+    furi_record_close(RECORD_STORAGE);
+    power->charge_is_supressed = false;
 }
 
 static Power* power_alloc(void) {
@@ -449,6 +673,16 @@ static Power* power_alloc(void) {
     desktop_settings_load(settings);
     power->displayBatteryPercentage = settings->displayBatteryPercentage;
     free(settings);
+
+    // auto_poweroff
+    //---define subscription to loader events message (info about started apps) and define callback for this
+    Loader* loader = furi_record_open(RECORD_LOADER);
+    furi_pubsub_subscribe(loader_get_pubsub(loader), power_loader_callback, power);
+    power->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
+    //define autopoweroff timer and they callback
+    power->auto_poweroff_timer =
+        furi_timer_alloc(power_auto_poweroff_timer_callback, FuriTimerTypeOnce, power);
+
     // Gui
     Gui* gui = furi_record_open(RECORD_GUI);
 
@@ -486,9 +720,19 @@ int32_t power_srv(void* p) {
     }
 
     Power* power = power_alloc();
+
+    // power service settings initialization
+    power_init_settings(power);
+
     power_update_info(power);
 
     furi_record_create(RECORD_POWER, power);
+
+    // Can't be done in alloc, other things in startup need power service and it would deadlock by waiting for loader
+    Loader* loader = furi_record_open(RECORD_LOADER);
+    power->app_running = loader_is_locked(loader);
+    furi_record_close(RECORD_LOADER);
+
     furi_event_loop_run(power->event_loop);
 
     return 0;

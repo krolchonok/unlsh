@@ -18,6 +18,7 @@ typedef enum {
     DesktopSettingsFavoriteLeftLong,
     DesktopSettingsFavoriteRightShort,
     DesktopSettingsFavoriteRightLong,
+    DesktopSettingsFavoriteOkLong,
     DesktopSettingsDummyLeft,
     DesktopSettingsDummyLeftLong,
     DesktopSettingsDummyRight,
@@ -28,15 +29,6 @@ typedef enum {
     DesktopSettingsDummyOk,
     DesktopSettingsDummyOkLong,
 } DesktopSettingsEntry;
-
-// --- auto_power_off_timer
-#define AUTO_POWEROFF_DELAY_COUNT 8
-const char* const auto_poweroff_delay_text[AUTO_POWEROFF_DELAY_COUNT] =
-    {"OFF", "5min", "10min", "15min", "30min", "45min", "60min", "90min"};
-
-const uint32_t auto_poweroff_delay_value[AUTO_POWEROFF_DELAY_COUNT] =
-    {0, 300000, 600000, 900000, 1800000, 2700000, 3600000, 5400000};
-// ---
 
 #define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -53,6 +45,15 @@ const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
 
 const uint32_t auto_lock_delay_value[AUTO_LOCK_DELAY_COUNT] =
     {0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
+
+#define USB_INHIBIT_AUTO_LOCK_DELAY_COUNT 2
+
+const char* const usb_inhibit_auto_lock_delay_text[USB_INHIBIT_AUTO_LOCK_DELAY_COUNT] = {
+    "OFF",
+    "ON",
+};
+
+const uint32_t usb_inhibit_auto_lock_delay_value[USB_INHIBIT_AUTO_LOCK_DELAY_COUNT] = {0, 1};
 
 #define CLOCK_ENABLE_COUNT 2
 const char* const clock_enable_text[CLOCK_ENABLE_COUNT] = {
@@ -96,22 +97,20 @@ static void desktop_settings_scene_start_clock_enable_changed(VariableItem* item
     app->settings.display_clock = index;
 }
 
-// --- auto_power_off_timer
-static void desktop_settings_scene_start_auto_poweroff_delay_changed(VariableItem* item) {
-    DesktopSettingsApp* app = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, auto_poweroff_delay_text[index]);
-    app->settings.auto_poweroff_delay_ms = auto_poweroff_delay_value[index];
-}
-// ---
-
 static void desktop_settings_scene_start_auto_lock_delay_changed(VariableItem* item) {
     DesktopSettingsApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, auto_lock_delay_text[index]);
     app->settings.auto_lock_delay_ms = auto_lock_delay_value[index];
+}
+
+static void desktop_settings_scene_start_usb_inhibit_auto_lock_delay_changed(VariableItem* item) {
+    DesktopSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, usb_inhibit_auto_lock_delay_text[index]);
+    app->settings.usb_inhibit_auto_lock = usb_inhibit_auto_lock_delay_value[index];
 }
 
 void desktop_settings_scene_start_on_enter(void* context) {
@@ -135,21 +134,20 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, auto_lock_delay_text[value_index]);
 
-    // --- auto_power_off_timer
+    // USB connection Inhibit autolock OFF|ON|with opened RPC session
     item = variable_item_list_add(
         variable_item_list,
-        "Auto PowerOff",
-        AUTO_POWEROFF_DELAY_COUNT,
-        desktop_settings_scene_start_auto_poweroff_delay_changed,
+        "Auto Lock disarm by active USB session",
+        USB_INHIBIT_AUTO_LOCK_DELAY_COUNT,
+        desktop_settings_scene_start_usb_inhibit_auto_lock_delay_changed,
         app);
 
     value_index = value_index_uint32(
-        app->settings.auto_poweroff_delay_ms,
-        auto_poweroff_delay_value,
-        AUTO_POWEROFF_DELAY_COUNT);
+        app->settings.usb_inhibit_auto_lock,
+        usb_inhibit_auto_lock_delay_value,
+        USB_INHIBIT_AUTO_LOCK_DELAY_COUNT);
     variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, auto_poweroff_delay_text[value_index]);
-    // ---
+    variable_item_set_current_value_text(item, usb_inhibit_auto_lock_delay_text[value_index]);
 
     item = variable_item_list_add(
         variable_item_list,
@@ -185,6 +183,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_list_add(variable_item_list, "Favorite App - Left Long", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Short", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "Favorite App - Right Long", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Favorite App - Ok Long", 1, NULL, NULL);
 
     variable_item_list_add(variable_item_list, "DummyMode - Left", 1, NULL, NULL);
     variable_item_list_add(variable_item_list, "DummyMode - Left Long", 1, NULL, NULL);
@@ -247,6 +246,13 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
                 app->scene_manager,
                 DesktopSettingsAppSceneFavorite,
                 SCENE_STATE_SET_FAVORITE_APP | FavoriteAppRightLong);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            break;
+        case DesktopSettingsFavoriteOkLong:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                DesktopSettingsAppSceneFavorite,
+                SCENE_STATE_SET_FAVORITE_APP | FavoriteAppOkLong);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             break;
 

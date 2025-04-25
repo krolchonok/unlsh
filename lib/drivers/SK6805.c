@@ -21,14 +21,14 @@
 
 /* Настройки */
 #define SK6805_LED_COUNT 3 //Количество светодиодов на плате подсветки
-#define SK6805_LED_PIN &led_pin //Порт подключения светодиодов
+#define SK6805_LED_PIN   &led_pin //Порт подключения светодиодов
 
 #ifdef FURI_DEBUG
 #define DEBUG_PIN &gpio_ext_pa7
 #define DEBUG_INIT() \
     furi_hal_gpio_init(DEBUG_PIN, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh)
 #define DEBUG_SET_HIGH() furi_hal_gpio_write(DEBUG_PIN, true)
-#define DEBUG_SET_LOW() furi_hal_gpio_write(DEBUG_PIN, false)
+#define DEBUG_SET_LOW()  furi_hal_gpio_write(DEBUG_PIN, false)
 #else
 #define DEBUG_INIT()
 #define DEBUG_SET_HIGH()
@@ -57,7 +57,8 @@ void SK6805_set_led_color(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b) {
 
 void SK6805_update(void) {
     SK6805_init();
-    furi_kernel_lock();
+    FURI_CRITICAL_ENTER();
+    furi_delay_us(100);
     uint32_t end;
     /* Последовательная отправка цветов светодиодов */
     for(uint8_t lednumber = 0; lednumber < SK6805_LED_COUNT; lednumber++) {
@@ -97,5 +98,5 @@ void SK6805_update(void) {
             }
         }
     }
-    furi_kernel_unlock();
+    FURI_CRITICAL_EXIT();
 }

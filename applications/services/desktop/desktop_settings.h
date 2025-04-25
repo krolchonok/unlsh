@@ -14,6 +14,7 @@ typedef enum {
     FavoriteAppLeftLong,
     FavoriteAppRightShort,
     FavoriteAppRightLong,
+    FavoriteAppOkLong,
 
     FavoriteAppNumber,
 } FavoriteAppShortcut;
@@ -38,9 +39,7 @@ typedef struct {
 
 typedef struct {
     uint32_t auto_lock_delay_ms;
-    //--- auto_power_off_timer
-    uint32_t auto_poweroff_delay_ms;
-    //---
+    uint8_t usb_inhibit_auto_lock;
     uint8_t displayBatteryPercentage;
     uint8_t dummy_mode;
     uint8_t display_clock;

@@ -1,6 +1,5 @@
 #include "desktop_i.h"
 
-#include <cli/cli.h>
 #include <cli/cli_vcp.h>
 
 #include <gui/gui_i.h>
@@ -13,18 +12,14 @@
 #include "scenes/desktop_scene.h"
 #include "scenes/desktop_scene_locked.h"
 
+#include "furi_hal_power.h"
+
 #define TAG "Desktop"
 
 static void desktop_auto_lock_arm(Desktop*);
 static void desktop_auto_lock_inhibit(Desktop*);
 static void desktop_start_auto_lock_timer(Desktop*);
 static void desktop_apply_settings(Desktop*);
-//--- auto_power_off_timer
-#include <power/power_service/power.h>
-static void desktop_start_auto_poweroff_timer(Desktop*);
-static void desktop_auto_poweroff_arm(Desktop*);
-static void desktop_auto_poweroff_inhibit(Desktop*);
-//---
 
 static void desktop_loader_callback(const void* message, void* context) {
     furi_assert(context);
@@ -34,9 +29,7 @@ static void desktop_loader_callback(const void* message, void* context) {
     if(event->type == LoaderEventTypeApplicationBeforeLoad) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
         furi_check(furi_semaphore_acquire(desktop->animation_semaphore, 3000) == FuriStatusOk);
-    } else if(
-        event->type == LoaderEventTypeApplicationLoadFailed ||
-        event->type == LoaderEventTypeApplicationStopped) {
+    } else if(event->type == LoaderEventTypeNoMoreAppsInQueue) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
     }
 }
@@ -137,9 +130,7 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
         }
 
         desktop_auto_lock_inhibit(desktop);
-        //--- auto_power_off_timer
-        desktop_auto_poweroff_inhibit(desktop);
-        //--
+
         desktop->app_running = true;
 
         furi_semaphore_release(desktop->animation_semaphore);
@@ -147,19 +138,16 @@ static bool desktop_custom_event_callback(void* context, uint32_t event) {
     } else if(event == DesktopGlobalAfterAppFinished) {
         animation_manager_load_and_continue_animation(desktop->animation_manager);
         desktop_auto_lock_arm(desktop);
-        //--- auto_power_off_timer
-        desktop_auto_poweroff_arm(desktop);
-        //---
         desktop->app_running = false;
 
     } else if(event == DesktopGlobalAutoLock) {
         if(!desktop->app_running && !desktop->locked) {
+            // Disable AutoLock if usb_inhibit_autolock option enabled and device have active USB session.
+            if((desktop->settings.usb_inhibit_auto_lock) && (furi_hal_usb_is_locked())) {
+                return (0);
+            }
+
             desktop_lock(desktop);
-        }
-    } else if(event == DesktopGlobalAutoPowerOff) {
-        if(!desktop->app_running) {
-            Power* power = furi_record_open(RECORD_POWER);
-            power_off(power);
         }
     } else if(event == DesktopGlobalSaveSettings) {
         desktop_settings_save(&desktop->settings);
@@ -195,9 +183,6 @@ static void desktop_input_event_callback(const void* value, void* context) {
     Desktop* desktop = context;
     if(event->type == InputTypePress) {
         desktop_start_auto_lock_timer(desktop);
-        //--- auto_power_off_timer
-        desktop_start_auto_poweroff_timer(desktop);
-        //---
     }
 }
 
@@ -234,41 +219,6 @@ static void desktop_auto_lock_inhibit(Desktop* desktop) {
     }
 }
 
-//--- auto_power_off_timer
-static void desktop_auto_poweroff_timer_callback(void* context) {
-    furi_assert(context);
-    Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAutoPowerOff);
-}
-
-static void desktop_start_auto_poweroff_timer(Desktop* desktop) {
-    furi_timer_start(
-        desktop->auto_poweroff_timer, furi_ms_to_ticks(desktop->settings.auto_poweroff_delay_ms));
-}
-
-static void desktop_stop_auto_poweroff_timer(Desktop* desktop) {
-    furi_timer_stop(desktop->auto_poweroff_timer);
-}
-
-static void desktop_auto_poweroff_arm(Desktop* desktop) {
-    if(desktop->settings.auto_poweroff_delay_ms) {
-        if(!desktop->input_events_subscription) {
-            desktop->input_events_subscription = furi_pubsub_subscribe(
-                desktop->input_events_pubsub, desktop_input_event_callback, desktop);
-        }
-        desktop_start_auto_poweroff_timer(desktop);
-    }
-}
-
-static void desktop_auto_poweroff_inhibit(Desktop* desktop) {
-    desktop_stop_auto_poweroff_timer(desktop);
-    if(desktop->input_events_subscription) {
-        furi_pubsub_unsubscribe(desktop->input_events_pubsub, desktop->input_events_subscription);
-        desktop->input_events_subscription = NULL;
-    }
-}
-//---
-
 static void desktop_clock_timer_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
@@ -294,9 +244,6 @@ static void desktop_apply_settings(Desktop* desktop) {
 
     if(!desktop->app_running && !desktop->locked) {
         desktop_auto_lock_arm(desktop);
-        //--- auto_power_off_timer
-        desktop_auto_poweroff_arm(desktop);
-        //---
     }
 
     desktop->in_transition = false;
@@ -432,10 +379,6 @@ static Desktop* desktop_alloc(void) {
 
     desktop->auto_lock_timer =
         furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
-    //--- auto_power_off_timer
-    desktop->auto_poweroff_timer =
-        furi_timer_alloc(desktop_auto_poweroff_timer_callback, FuriTimerTypeOnce, desktop);
-    //---
 
     desktop->status_pubsub = furi_pubsub_alloc();
 
@@ -459,9 +402,9 @@ void desktop_lock(Desktop* desktop) {
     furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
 
     if(desktop_pin_code_is_set()) {
-        Cli* cli = furi_record_open(RECORD_CLI);
-        cli_session_close(cli);
-        furi_record_close(RECORD_CLI);
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_disable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     desktop_auto_lock_inhibit(desktop);
@@ -489,9 +432,9 @@ void desktop_unlock(Desktop* desktop) {
     furi_hal_rtc_set_pin_fails(0);
 
     if(desktop_pin_code_is_set()) {
-        Cli* cli = furi_record_open(RECORD_CLI);
-        cli_session_open(cli, &cli_vcp);
-        furi_record_close(RECORD_CLI);
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_enable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     DesktopStatus status = {.locked = false};
@@ -588,6 +531,10 @@ int32_t desktop_srv(void* p) {
 
     if(desktop_pin_code_is_set()) {
         desktop_lock(desktop);
+    } else {
+        CliVcp* cli_vcp = furi_record_open(RECORD_CLI_VCP);
+        cli_vcp_enable(cli_vcp);
+        furi_record_close(RECORD_CLI_VCP);
     }
 
     if(storage_file_exists(desktop->storage, SLIDESHOW_FS_PATH)) {

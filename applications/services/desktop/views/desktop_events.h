@@ -8,6 +8,7 @@ typedef enum {
     DesktopMainEventOpenFavoriteLeftLong,
     DesktopMainEventOpenFavoriteRightShort,
     DesktopMainEventOpenFavoriteRightLong,
+    DesktopMainEventOpenFavoriteOkLong,
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
     DesktopMainEventOpenPowerOff,
@@ -62,5 +63,4 @@ typedef enum {
     DesktopGlobalApiUnlock,
     DesktopGlobalSaveSettings,
     DesktopGlobalReloadSettings,
-    DesktopGlobalAutoPowerOff,
 } DesktopEvent;

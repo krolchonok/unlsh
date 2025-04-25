@@ -75,9 +75,6 @@ struct Desktop {
 
     FuriTimer* auto_lock_timer;
     FuriTimer* update_clock_timer;
-    //--- auto_power_off_timer
-    FuriTimer* auto_poweroff_timer;
-    //---
 
     AnimationManager* animation_manager;
     FuriSemaphore* animation_semaphore;
