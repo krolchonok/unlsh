@@ -25,7 +25,7 @@ jobs:
           cp ./dist/f7-C/flipper-z-f7-update-my_fork_v1.tgz ./dist/f7-C/flipper-z-f7-update-my_fork_v1_full.tgz
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: flipper-z-f7-update-my_fork_v1_full.tgz # Имя артефакта
           path: ./dist/f7-C/flipper-z-f7-update-my_fork_v1_full.tgz # Путь к файлу для загрузки
