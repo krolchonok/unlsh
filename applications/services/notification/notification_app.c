@@ -9,7 +9,6 @@
 #include "notification.h"
 #include "notification_messages.h"
 #include "notification_app.h"
-#include "applications/settings/notification_settings/rgb_backlight.h"
 
 #define TAG         "NotificationSrv"
 #define COLOR_COUNT (sizeof(colors) / sizeof(RGBBacklightColor))
@@ -947,7 +946,6 @@ int32_t notification_srv(void* p) {
             break;
         case SaveSettingsMessage:
             notification_save_settings(app);
-            rgb_backlight_save_settings();
             break;
         case LoadSettingsMessage:
             notification_load_settings(app);
