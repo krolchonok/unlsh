@@ -1,16 +1,30 @@
 ## Main changes
-- Current API: 86.0
-* SubGHz: Tune Linear (edited by @WillyJL in PR #919 #920) (add better EZCode support), Dickert MAHS decoders
+- Current API: 87.0
+* SubGHz: Add **Elplast 18bit** static code protocol (hello Hackcat ^_^)
+* SubGHz: Try to **decode BFT** (2 buttons remotes only) **on the fly** in regular Read mode (no more KL Unknown and all of that for free?!) (for 4 button remote follow docs [here](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzRemoteProg.md))
+* SubGHz: **Tune Linear** (edited by @WillyJL in PR #919 #920) (add better EZCode support) and **Dickert MAHS** protocol decoders
 * SubGHz: RAW protocol fixes (by @WillyJL)
-* SubGHz: Add ZKTeco 430.5 MHz add manually support
+* SubGHz: Add **ZKTeco 430.5 MHz** add manually support
 * SubGHz: Add variant of 'Add Manually' menu with manual editing for each value (PR #909 #911 #914 | by @MrLego8-9)
-* OFW PR 4271: NFC: Ultralight C NFC App Key Management, Dictionary Attack (by @noproto)
-* OFW PR 4265: NFC: Fix read crash with unexpectedly large MFC AUTH(0) response (by @WillyJL)
-* OFW PR 4251: CLI: Fix long delay with quick connect/disconnect (by @WillyJL)
-* LFRFID: Add additional procotols supported by EM4305 chipset (by @jamisonderek)
+* SubGHz: Temporarily remove HoneywellSec protocol due to unstable decoding and incorrect encoding
+* OFW: **NFC CLI commands**
+* OFW: LFRFID: **Show ISO-3166 Country Names For Pet Chips**
+* OFW: **JS views finished**
+* OFW: BLE: improved pairing security
+* OFW: FeliCa Emulation: Handle certain Polling commands in firmware
+* OFW PR 4271: NFC: **Ultralight C NFC App Key Management, Dictionary Attack** (by @noproto)
+* OFW PR 4265: NFC: **Fix read crash** with unexpectedly large MFC AUTH(0) response (by @WillyJL)
+* OFW PR 4251: CLI: **Fix long delay** with quick connect/disconnect (by @WillyJL)
+* LFRFID: Add additional procotols supported by **EM4305** chipset (by @jamisonderek)
 * Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
 * SubGHz: Fix crash in add manually menu
+* OFW: cli: Buzzer command
+* OFW: Update demo_windows.txt
+* OFW: Fix PVS warnings
+* OFW: NFC: Amusement IC Card Parser (FeliCa Lite & Lite-S)
+* OFW: hid_app mouse clicker: make mouse button selectable
+* OFW: JS: Expose button event type in gui/widget button callback
 * OFW: NFC: MFC 1k Banapass Parser 
 * OFW: GUI Bug Fix: Number Input Save Icon
 * Add possibility to use custom buttons when using the SubGHz remote app (by @MrLego8-9)
@@ -22,7 +36,7 @@
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
-- NFC CLI was removed with refactoring (OFW) (will be back soon)
+- While reading some EMV capable cards via NFC->Read flipper may crash due to Desfire poller issue, read those cards via Extra actions->Read specific card type->EMV 
 
 ----
 
