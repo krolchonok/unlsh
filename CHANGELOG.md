@@ -1,12 +1,23 @@
 ## Main changes
-- Current API: 87.0
-* SubGHz: Add IL-100 Smart support for Add manually
-* SubGHz: Add experimental counter overflow mode (OFEX), replicates how some key duplicators work, DO NOT USE if you don't know what you are doing, it will reset your counter value! (accesible with debug on in radio settings - counter incr.)
-* SubGHz: Return Honeywell Sec with fixes and improvements (by htotoo & LiQuiDz & xMasterX)
-* OFW PR 4279: NFC FeliCa Minor Fix: FelicaPollerEventType should only be Incomplete if the tag is FeliCa Lite (by @zinongli)
-* Apps: **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
+- Current API: 87.2
+* SubGHz: **Cardin S449 full support** (with Add manually, and all button codes) (**use FSK12K modulation to read the remote**) (closes issues #735 #908) (by @xMasterX and @zero-mega (thanks!))
+* SubGHz: Added **new modulation FSK with 12KHz deviation**
+* SubGHz: **KingGates Stylo 4k - Add manually and button switch support** + refactoring of encoder
+* SubGHz: **Stilmatic - button 9 support** (two buttons hold simulation) (mapped on arrow keys)
+* SubGHz: **Counter editor refactoring** (PR #939 | by @Dmitry422)
+* SubGHz: **Alutech AT-4N & Nice Flor S turbo speedup** (PR #942 | by @Dmitry422)
+* SubGHz: **Sommer fm2 in Add manually now uses FM12K modulation** (Sommer without fm2 tag uses FM476) (try this if regular option doesn't work for you)
+* SubGHz: **Sommer - last button code 0x6 support** (mapped on arrow keys)
+* SubGHz: Add 390MHz, 430.5MHz to default hopper list (6 elements like in OFW) (works well with Hopper RSSI level set for your enviroment)
+* NFC: Handle PPS request in ISO14443-4 layer (by @WillyJL)
+* Archive: Allow folders to be pinned (by @WillyJL)
+* Apps: Build tag (**9jan2026p2**) - **Check out more Apps updates and fixes by following** [this link](https://github.com/xMasterX/all-the-plugins/commits/dev)
 ## Other changes
-* Enable halloween anim
+* SubGHz: Rename Sommer(fsk476) to Sommer (Sommer keeloq works better with FM12K) + added backwards compatibility with older saved files
+* Docs: Add full list of supported SubGHz protocols and their frequencies/modulations that can be used for reading remotes - [Docs Link](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/SubGHzSupportedSystems.md)
+* Desktop: Show debug status (D) if clock is enabled and debug flag is on (PR #942 | by @Dmitry422)
+* NFC: Fix some typos in Type4Tag protocol (by @WillyJL)
+* Clangd: Add clangd parameters in IDE agnostic config file (by @WillyJL)
 <br><br>
 #### Known NFC post-refactor regressions list: 
 - Mifare Mini clones reading is broken (original mini working fine) (OFW)
@@ -16,7 +27,7 @@
 
 [-> How to install firmware](https://github.com/DarkFlippers/unleashed-firmware/blob/dev/documentation/HowToInstall.md)
 
-[-> Download qFlipper (official link)](https://flipperzero.one/update)
+[-> Unleashed FW Web Installer](https://web.unleashedflip.com)
 
 ## Please support development of the project
 

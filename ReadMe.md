@@ -18,7 +18,7 @@ This firmware is a fork of the original (OFW) version of [flipperdevices/flipper
 >
 > This project is developed independently and is not affiliated with Flipper Devices.
 >
-> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that users ASAP
+> Also be aware, DarkFlippers/unleashed-firmware is the only official page of the project, there is no paid, premium or closed source versions and if someone contacts you and say they are from our team and try to offer something like that - they are scammers, block that user ASAP
 
 <br/>
 
@@ -32,6 +32,9 @@ Before getting started:
 
 - **FAQ:**  
   Find answers to common questions in the [FAQ](/documentation/FAQ.md)
+
+- **Web Installer:**
+  -> [Unleashed FW Web Installer](https://web.unleashedflip.com)
 
 
 ## 📦 Releases
@@ -140,6 +143,8 @@ Also check the [changelog in releases](https://github.com/DarkFlippers/unleashed
 ### Current modified and new Sub-GHz protocols list:
 Thanks to Official team (to their SubGHz Developer, Skorp) for implementing support (decoder + encoder / or decode only) for these protocols in OFW.  
 
+[Full list of supported protocols and their frequencies/modulations (to use in Read mode)](/documentation/SubGHzSupportedSystems.md)
+
 > [!NOTE]
 > Not all Keeloq systems are supported for decoding or emulation!
 > <details>
@@ -151,7 +156,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 > | Alligator         | Comunello    | GSN              | Magic_4           | SL_A2-A4               |
 > | Alligator_S-275   | Dea_Mio      | Guard_RF-311A    | Mongoose          | SL_A6-A9/Tomahawk_9010 |
 > | APS-1100_APS-2550 | DTM_Neo      | Harpoon          | Mutanco_Mutancode | SL_B6,B9_dop           |
-> | Aprimatic         | DoorHan      | IronLogic        | NICE_MHOUSE       | Sommer(fsk476)         |
+> | Aprimatic         | DoorHan      | IronLogic        | NICE_MHOUSE       | Sommer                 |
 > | Beninca           | EcoStar      | JCM_Tech         | NICE_Smilo        | Stilmatic              |
 > | BFT               | Elmes_Poland | KEY              | Normstahl         | Teco                   |
 > | Came_Space        | FAAC_RC,XT   | Kingates_Stylo4k | Pantera           | Tomahawk_TZ-9030       |
@@ -160,7 +165,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 > | Cenmax_St-7       | Genius_Bravo | Magic_1          | Partisan_RX       | IL-100(Smart)          |
 > | Centurion         | Gibidi       | Magic_2          | Reff              | Merlin                 |
 > | Monarch           | Jolly Motors | Magic_3          | Sheriff           | Steelmate              |
-> | Motorline         | Rosh         | Pecinin          | Rossi             |                        |
+> | Motorline         | Rosh         | Pecinin          | Rossi             | Cardin S449            |
 > </details>
 <br/>
 
@@ -180,7 +185,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 - Hay21 (dynamic 21 bit) with button parsing
 - Nero Radio 57bit (+ 56bit support)
 - CAME 12bit/24bit encoder fixes (Fixes are now merged in OFW)
-- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !), Hormann EcoStar, Novoferm, Sommer, Monarch (thanks @ashphx !), Jolly Motors (thanks @pkooiman !), IL-100(Smart) (thx Vitaly for RAWs), Motorline (with add manually support), Rosh, Pecinin, Rossi, Merlin, Steelmate (thanks @RocketGod-git)
+- Keeloq: Dea Mio, Genius Bravo, GSN, HCS101, AN-Motors, JCM Tech, MHouse, Nice Smilo, DTM Neo, FAAC RC,XT, Mutancode, Normstahl, Beninca + Allmatic, Stilmatic, CAME Space, Aprimatic (model TR and similar), Centurion Nova (thanks Carlos !), Hormann EcoStar, Novoferm, Sommer, Monarch (thanks @ashphx !), Jolly Motors (thanks @pkooiman !), IL-100(Smart) (thx Vitaly for RAWs), Motorline (with add manually support), Rosh, Pecinin, Rossi, Merlin, Steelmate (thanks @RocketGod-git), Cardin S449 (thanks @zero-mega)
 </details>
 
 <details>
@@ -201,7 +206,7 @@ Thanks to Official team (to their SubGHz Developer, Skorp) for implementing supp
 
 - Somfy Telis → How to create new remote - [instructions](/documentation/SubGHzRemoteProg.md)
 - Somfy Keytis
-- KingGates Stylo 4k
+- KingGates Stylo 4k (UPD: Add manually and all buttons support)
 - Alutech AT-4N → How to create new remote - [instructions](/documentation/SubGHzRemoteProg.md)
 - Nice ON2E (Nice One) → How to create new remote - [instructions](/documentation/SubGHzRemoteProg.md)
 </details>
@@ -261,6 +266,7 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 ## 📁 Where I can find IR, Sub-GHz, ... files, DBs, and other stuff?
 - [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
 - [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
+- [IRDB - Infrared remotes database - Github](https://github.com/Lucaslhm/Flipper-IRDB)
 
 
 ## 📘 Instructions
@@ -273,7 +279,9 @@ Enhance your Flipper Zero with apps and plugins created by the community:
 
 ### ![SubGhz Icon Badge] Sub-GHz
 
-- [How to use Flipper as new remote (Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](/documentation/SubGHzRemoteProg.md)  
+- [Full list of supported protocols and their frequencies/modulations (to use in Read mode)](/documentation/SubGHzSupportedSystems.md)  
+- [How to use Flipper as rolling code remote (Doorhan, Nice FlorS, BFT Mitto, Somfy Telis, Aprimatic, AN-Motors, etc..)](/documentation/SubGHzRemoteProg.md)  
+- [Experimental rolling code counter modes (avoid desync)](/documentation/SubGHzCounterMode.md)  
 - External Radio: [How to connect CC1101 module](https://github.com/quen0n/flipperzero-ext-cc1101)  
 - Transmission is blocked? [How to extend Sub-GHz frequency range](/documentation/DangerousSettings.md)
 - [How to add extra Sub-GHz frequencies](/documentation/SubGHzSettings.md)
@@ -326,11 +334,13 @@ Also, pay attention to the `ReadMe.md` files inside those directories.
 
 ## 🔗 Links
 - **Unleashed web page:** [flipperunleashed.com](https://flipperunleashed.com)
-- **Unleashed update server, direct .tgz update links for web updater or direct download:** [unleashedflip.com](https://unleashedflip.com)
+- **Unleashed FW Web Installer:** [web.unleashedflip.com](https://web.unleashedflip.com)
+- **Unleashed domain used for direct .tgz update links for web updater or direct download:** [unleashedflip.com](https://unleashedflip.com)
+- **Unleashed directory json for ufbt builds:** [up.unleashedflip.com/directory.json](https://up.unleashedflip.com/directory.json)
 
 - Official Docs: [docs.flipper.net](https://docs.flipper.net)
 - Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one)
-- Update! Developer Documentation [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)
+- Update! Official Developer Documentation [developer.flipper.net](https://developer.flipper.net/flipperzero/doxygen)
 
 
 [RFID Icon Badge]: https://custom-icon-badges.demolab.com/badge/-rgb(255,244,147)?style=flat&logo=fz-rfid&logoColor=black
