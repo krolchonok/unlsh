@@ -25,6 +25,7 @@ class App:
             self.handler.setLevel(self.log_level)
             self.formatter = colorlog.ColoredFormatter(
                 "%(log_color)s%(asctime)s [%(levelname)s] %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
                 log_colors={
                     "DEBUG": "cyan",
                     # "INFO": "white",
